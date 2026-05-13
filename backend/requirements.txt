@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+motor
+pydantic
+python-multipart
+pandas
+openpyxl
+opencv-python
+face_recognition
+dlib
+scipy
+imutils
+requests
+APScheduler
+twilio
