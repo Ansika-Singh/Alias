@@ -6,6 +6,8 @@ from routes.timetable import router as TimetableRouter
 from routes.attendance import router as AttendanceRouter
 from routes.leaves import router as LeaveRouter
 from routes.analytics import router as AnalyticsRouter
+from routes.camera import router as CameraRouter
+from routes.registration import router as RegistrationRouter
 from services.scheduler import start_scheduler
 
 app = FastAPI(title="ALIAS Backend API", description="Automated Live Identification & Attendance System")
@@ -48,6 +50,8 @@ app.include_router(AttendanceRouter, tags=["Attendance"], prefix="/api/attendanc
 app.include_router(LeaveRouter, tags=["Leaves"], prefix="/api/leaves")
 app.include_router(AnalyticsRouter, tags=["Analytics"], prefix="/api/analytics")
 app.include_router(AuthRouter, tags=["Auth"], prefix="/api/auth")
+app.include_router(CameraRouter, tags=["Camera"], prefix="/api/camera")
+app.include_router(RegistrationRouter, tags=["Registration"], prefix="/api/registration")
 
 if __name__ == "__main__":
     import uvicorn

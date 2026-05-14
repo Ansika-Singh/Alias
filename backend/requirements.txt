@@ -5,7 +5,7 @@ pydantic
 python-multipart
 pandas
 openpyxl
-opencv-python
+opencv-contrib-python
 face_recognition
 dlib
 scipy

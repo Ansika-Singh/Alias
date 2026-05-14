@@ -1,9 +1,14 @@
 from motor.motor_asyncio import AsyncIOMotorClient
+import os
+from dotenv import load_dotenv
 
-MONGO_DETAILS = "mongodb://localhost:27017"
+load_dotenv()
+
+MONGO_DETAILS = os.getenv("MONGO_URI", "mongodb://localhost:27017")
 
 client = AsyncIOMotorClient(MONGO_DETAILS)
-database = client.alias_db
+database = client.get_database(os.getenv("DB_NAME", "alias_db"))
+
 
 student_collection = database.get_collection("students")
 teacher_collection = database.get_collection("users")

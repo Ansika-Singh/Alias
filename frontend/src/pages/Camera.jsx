@@ -3,19 +3,19 @@ import { Video, Wifi, WifiOff, Activity, Users, Eye, RefreshCw, Maximize2, Alert
 import './Camera.css';
 
 const MOCK_NODES = [
-  { id: 'cam-01', name: 'Main Hall Entrance', location: 'Building A - Ground Floor', status: 'online', fps: 28, detections: 12, lastPing: '2s ago' },
-  { id: 'cam-02', name: 'CS Department Lab', location: 'Building B - 2nd Floor', status: 'online', fps: 25, detections: 8, lastPing: '1s ago' },
+  { id: 'cam-01', name: 'Main Hall Entrance', location: 'Building A - Ground Floor', status: 'online', fps: 28, detections: 12, lastPing: '2s ago', videoUrl: 'http://localhost:8000/api/camera/stream' },
+  { id: 'cam-02', name: 'CS Department Lab', location: 'Building B - 2nd Floor', status: 'online', fps: 25, detections: 8, lastPing: '1s ago', videoUrl: 'https://raw.githubusercontent.com/intel-iot-devkit/sample-videos/master/head-pose-face-detection-female-and-male.mp4' },
   { id: 'cam-03', name: 'Library Gate', location: 'Building C - Ground Floor', status: 'offline', fps: 0, detections: 0, lastPing: '5m ago' },
-  { id: 'cam-04', name: 'Auditorium', location: 'Building A - 1st Floor', status: 'online', fps: 30, detections: 45, lastPing: '1s ago' },
+  { id: 'cam-04', name: 'Auditorium', location: 'Building A - 1st Floor', status: 'online', fps: 30, detections: 45, lastPing: '1s ago', videoUrl: 'https://raw.githubusercontent.com/intel-iot-devkit/sample-videos/master/face-demographics-walking.mp4' },
 ];
 
 const MOCK_RECENT_DETECTIONS = [
-  { name: 'Alex Johnson', usn: '1XX19CS001', time: '21:18:32', confidence: 98.2, camera: 'Main Hall Entrance' },
-  { name: 'Priya Patel', usn: '1XX19CS102', time: '21:18:28', confidence: 96.7, camera: 'Main Hall Entrance' },
-  { name: 'Rahul Sharma', usn: '1XX19CS055', time: '21:18:15', confidence: 99.1, camera: 'CS Department Lab' },
-  { name: 'Sarah Smith', usn: '1XX19CS042', time: '21:17:55', confidence: 94.3, camera: 'CS Department Lab' },
-  { name: 'Lisa Chen', usn: '1XX19CS071', time: '21:17:42', confidence: 97.8, camera: 'Auditorium' },
-  { name: 'David Wilson', usn: '1XX19EC015', time: '21:17:30', confidence: 95.5, camera: 'Auditorium' },
+  { name: 'Rahul Sharma', usn: '1XX19CS001', time: '21:18:32', confidence: 98.2, camera: 'Main Hall Entrance' },
+  { name: 'Alex Johnson', usn: '1XX19CS102', time: '21:18:28', confidence: 96.7, camera: 'Main Hall Entrance' },
+  { name: 'Pranav Patel', usn: '1XX19CS055', time: '21:18:15', confidence: 99.1, camera: 'Main Hall Entrance' },
+  { name: 'Michael Chang', usn: '1XX19CS042', time: '21:17:55', confidence: 94.3, camera: 'Main Hall Entrance' },
+  { name: 'Rahul Sharma', usn: '1XX19CS001', time: '21:17:42', confidence: 97.8, camera: 'CS Department Lab' },
+  { name: 'Alex Johnson', usn: '1XX19EC015', time: '21:17:30', confidence: 95.5, camera: 'Auditorium' },
 ];
 
 const Camera = () => {
@@ -87,21 +87,41 @@ const Camera = () => {
             <div className="feed-viewport">
               {selectedNode.status === 'online' ? (
                 <>
-                  <div className="feed-placeholder">
-                    <div className="scan-line" key={pulseKey} />
-                    <div className="feed-grid-overlay" />
-                    <div className="feed-center-content">
-                      <Eye size={48} style={{ opacity: 0.3 }} />
-                      <p>Camera feed streaming</p>
-                      <span className="feed-info">{selectedNode.location}</span>
-                    </div>
-                    {/* Simulated detection boxes */}
-                    <div className="detection-box" style={{ top: '25%', left: '20%', width: '60px', height: '70px' }}>
-                      <span className="detection-label">Alex J. (98%)</span>
-                    </div>
-                    <div className="detection-box" style={{ top: '30%', left: '55%', width: '55px', height: '65px' }}>
-                      <span className="detection-label">Priya P. (97%)</span>
-                    </div>
+                  <div className="feed-placeholder" style={selectedNode.videoUrl ? { padding: 0, overflow: 'hidden' } : {}}>
+                    {selectedNode.videoUrl ? (
+                      <video 
+                        src={selectedNode.videoUrl} 
+                        autoPlay loop muted playsInline 
+                        style={{ width: '100%', height: '100%', objectFit: 'contain', position: 'absolute', top: 0, left: 0 }} 
+                      />
+                    ) : (
+                      <>
+                        <div className="scan-line" key={pulseKey} />
+                        <div className="feed-grid-overlay" />
+                        <div className="feed-center-content">
+                          <Eye size={48} style={{ opacity: 0.3 }} />
+                          <p>Camera feed streaming</p>
+                          <span className="feed-info">{selectedNode.location}</span>
+                        </div>
+                      </>
+                    )}
+                    {/* Use CSS overlays ONLY for sample videos. Real backend stream has boxes baked in. */}
+                    {selectedNode.status === 'online' && selectedNode.videoUrl && !selectedNode.videoUrl.includes('localhost') && (
+                      <>
+                        <div className="detection-box p1" style={{ width: '60px', height: '70px', zIndex: 10 }}>
+                          <span className="detection-label">Rahul S. (98%) ♂</span>
+                        </div>
+                        <div className="detection-box p2" style={{ width: '55px', height: '65px', zIndex: 10 }}>
+                          <span className="detection-label">Alex J. (97%) ♂</span>
+                        </div>
+                        <div className="detection-box p3" style={{ width: '55px', height: '65px', zIndex: 10 }}>
+                          <span className="detection-label">Pranav P. (96%) ♂</span>
+                        </div>
+                        <div className="detection-box p4" style={{ width: '65px', height: '75px', zIndex: 10 }}>
+                          <span className="detection-label">Michael C. (95%) ♂</span>
+                        </div>
+                      </>
+                    )}
                   </div>
                   <div className="feed-status-bar">
                     <span className="feed-stat"><Activity size={12} /> {selectedNode.fps} FPS</span>

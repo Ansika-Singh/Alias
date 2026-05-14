@@ -2,23 +2,36 @@ import React, { useState } from 'react';
 import { Search, UserPlus, Upload, ChevronDown, X, User, GraduationCap, Filter } from 'lucide-react';
 import './Students.css';
 
-const MOCK_STUDENTS = [
-  { usn: "1XX19CS001", name: "Alex Johnson", branch: "CSE", semester: 5, section: "A", enrollmentStatus: "ENROLLED", parentContact: "+1234567890", attendancePercent: 92 },
-  { usn: "1XX19CS042", name: "Sarah Smith", branch: "CSE", semester: 5, section: "A", enrollmentStatus: "ENROLLED", parentContact: "+1234567891", attendancePercent: 78 },
-  { usn: "1XX19CS088", name: "Michael Chang", branch: "CSE", semester: 5, section: "B", enrollmentStatus: "PENDING", parentContact: "+1234567892", attendancePercent: 0 },
-  { usn: "1XX19CS102", name: "Priya Patel", branch: "CSE", semester: 5, section: "A", enrollmentStatus: "ENROLLED", parentContact: "+1234567893", attendancePercent: 95 },
-  { usn: "1XX19EC015", name: "David Wilson", branch: "ECE", semester: 5, section: "A", enrollmentStatus: "ENROLLED", parentContact: "+1234567894", attendancePercent: 65 },
-  { usn: "1XX19ME033", name: "Emma Davis", branch: "ME", semester: 3, section: "B", enrollmentStatus: "PENDING", parentContact: "+1234567895", attendancePercent: 0 },
-  { usn: "1XX19CS055", name: "Rahul Sharma", branch: "CSE", semester: 5, section: "B", enrollmentStatus: "ENROLLED", parentContact: "+1234567896", attendancePercent: 88 },
-  { usn: "1XX19CS071", name: "Lisa Chen", branch: "CSE", semester: 5, section: "A", enrollmentStatus: "ENROLLED", parentContact: "+1234567897", attendancePercent: 71 },
-];
+const INDIAN_NAMES = ["Aarav", "Aaryan", "Advait", "Akash", "Amit", "Ananya", "Aniket", "Anika", "Arjun", "Aryan", "Ayush", "Bhavya", "Chaitanya", "Dev", "Diya", "Gaurav", "Ishaan", "Ishani", "Karan", "Kavya", "Manish", "Mayank", "Myra", "Navya", "Nikhil", "Parth", "Pranav", "Priyanka", "Rahul", "Riya", "Rohan", "Saanvi", "Siddharth", "Sneha", "Tanvi", "Uday", "Varun", "Vihaan", "Yash", "Zoya"];
+const LAST_NAMES = ["Sharma", "Verma", "Singh", "Patel", "Gupta", "Reddy", "Iyer", "Nair", "Kulkarni", "Deshmukh", "Joshi", "Rao", "Bhat", "Agarwal", "Bansal"];
+
+const MOCK_STUDENTS = Array.from({ length: 50 }, (_, i) => {
+  const first = INDIAN_NAMES[i % INDIAN_NAMES.length];
+  const last = LAST_NAMES[i % LAST_NAMES.length];
+  return {
+    usn: `1CD24CS${String(i + 1).padStart(3, '0')}`,
+    name: `${first} ${last}`,
+    branch: "CSE",
+    semester: 5,
+    section: i < 25 ? "A" : "B",
+    enrollmentStatus: i < 42 ? "ENROLLED" : "PENDING",
+    parentContact: `+91 ${9800000000 + i}`,
+    attendancePercent: i < 42 ? Math.floor(Math.random() * (98 - 75 + 1) + 75) : 0
+  };
+});
+
 
 const Students = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterBranch, setFilterBranch] = useState('ALL');
   const [filterStatus, setFilterStatus] = useState('ALL');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
   const [newStudent, setNewStudent] = useState({ usn: '', name: '', branch: 'CSE', semester: 5, section: 'A', parentContact: '' });
+  const [isCapturing, setIsCapturing] = useState(false);
+  const videoRef = React.useRef(null);
+  const canvasRef = React.useRef(null);
 
   const filteredStudents = MOCK_STUDENTS.filter(s => {
     const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase()) || s.usn.toLowerCase().includes(searchQuery.toLowerCase());
@@ -162,10 +175,25 @@ const Students = () => {
                   </span>
                 </td>
                 <td>
-                  <button className="btn-icon" title="View Details">
-                    <GraduationCap size={16} />
-                  </button>
+                  {student.enrollmentStatus === 'PENDING' ? (
+                    <button 
+                      className="btn-primary" 
+                      style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem' }}
+                      onClick={() => {
+                        setSelectedStudent(student);
+                        setShowRegisterModal(true);
+                      }}
+                    >
+                      Register Face
+                    </button>
+                  ) : (
+                    <button className="btn-icon" title="View Details">
+                      <GraduationCap size={16} />
+                    </button>
+                  )}
                 </td>
+
+
               </tr>
             ))}
           </tbody>
@@ -228,7 +256,96 @@ const Students = () => {
                 <label htmlFor="add-contact">Parent Contact</label>
                 <input id="add-contact" type="tel" placeholder="+1234567890"
                   value={newStudent.parentContact} onChange={e => setNewStudent({ ...newStudent, parentContact: e.target.value })} />
+                {/* Face Registration Modal */}
+      {showRegisterModal && (
+        <div className="modal-overlay">
+          <div className="modal glass-panel" style={{ maxWidth: '500px' }}>
+            <div className="modal-header">
+              <h3>Face Registration: {selectedStudent?.name}</h3>
+              <button className="btn-icon" onClick={() => {
+                setShowRegisterModal(false);
+                setIsCapturing(false);
+              }}>
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div style={{ padding: '1.5rem', textAlign: 'center' }}>
+              <div style={{ 
+                width: '100%', 
+                aspectRatio: '4/3', 
+                background: 'black', 
+                borderRadius: 'var(--radius-md)', 
+                overflow: 'hidden',
+                position: 'relative',
+                marginBottom: '1.5rem'
+              }}>
+                <video 
+                  ref={videoRef} 
+                  autoPlay 
+                  playsInline 
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                />
+                <canvas ref={canvasRef} style={{ display: 'none' }} width="640" height="480" />
+                
+                {!isCapturing && (
+                  <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.5)', cursor: 'pointer' }}
+                    onClick={async () => {
+                      try {
+                        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                        videoRef.current.srcObject = stream;
+                        setIsCapturing(true);
+                      } catch (err) {
+                        alert("Could not access camera: " + err.message);
+                      }
+                    }}
+                  >
+                    <div style={{ textAlign: 'center' }}>
+                      <Camera size={48} style={{ marginBottom: '1rem' }} />
+                      <p>Click to Start Camera</p>
+                    </div>
+                  </div>
+                )}
               </div>
+
+              {isCapturing && (
+                <button 
+                  className="btn-primary" 
+                  style={{ width: '100%' }}
+                  onClick={async () => {
+                    const canvas = canvasRef.current;
+                    const video = videoRef.current;
+                    canvas.getContext('2d').drawImage(video, 0, 0, 640, 480);
+                    
+                    canvas.toBlob(async (blob) => {
+                      const formData = new FormData();
+                      formData.append('file', blob, `${selectedStudent.usn}.jpg`);
+                      formData.append('usn', selectedStudent.usn);
+                      
+                      try {
+                        await axios.post('http://localhost:8000/api/registration/register', formData);
+                        alert("Face Registered Successfully!");
+                        setShowRegisterModal(false);
+                        // In production, update student status in state here
+                      } catch (err) {
+                        alert("Failed to upload: " + err.message);
+                      }
+                      
+                      // Stop camera
+                      video.srcObject.getTracks().forEach(track => track.stop());
+                      setIsCapturing(false);
+                    }, 'image/jpeg');
+                  }}
+                >
+                  Capture & Register
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+
               <div className="modal-actions">
                 <button type="button" className="btn-secondary" onClick={() => setShowAddModal(false)}>Cancel</button>
                 <button type="submit" className="btn-primary">Add Student</button>

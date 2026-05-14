@@ -1,9 +1,9 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, Calendar, Settings, Video } from 'lucide-react';
+import { LayoutDashboard, Users, Calendar, Settings, Camera } from 'lucide-react';
 import './Sidebar.css';
 
-const Sidebar = () => {
+const Sidebar = ({ onLogout }) => {
   const linkClass = ({ isActive }) => isActive ? "nav-item active" : "nav-item";
 
   return (
@@ -26,20 +26,37 @@ const Sidebar = () => {
           <Calendar size={20} />
           <span>Timetable</span>
         </NavLink>
-        <NavLink to="/camera" className={linkClass}>
-          <Video size={20} />
-          <span>Live Feed</span>
+        <NavLink to="/photo-attendance" className={linkClass}>
+          <Camera size={20} />
+          <span>Photo Attendance</span>
         </NavLink>
       </nav>
+
       
-      <div className="bottom-nav">
+      <div className="bottom-nav" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         <NavLink to="/settings" className={linkClass}>
           <Settings size={20} />
           <span>Settings</span>
         </NavLink>
+        <button 
+          onClick={onLogout}
+          className="nav-item" 
+          style={{ 
+            background: 'none', 
+            border: 'none', 
+            width: '100%', 
+            cursor: 'pointer', 
+            justifyContent: 'flex-start',
+            color: 'var(--accent-danger)'
+          }}
+        >
+          <LayoutDashboard size={20} /> {/* Using as placeholder for logout icon if LogOut not imported */}
+          <span>Log Out</span>
+        </button>
       </div>
     </aside>
   );
 };
+
 
 export default Sidebar;
