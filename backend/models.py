@@ -10,9 +10,10 @@ class StudentSchema(BaseModel):
     section: str = Field(...)
     parentContact: Optional[str] = Field(None)
     parentEmail: Optional[EmailStr] = Field(None)
+    parentPin: str = Field("1234", description="4-digit PIN for parent login")
     
-    class Config:
-        schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "example": {
                 "usn": "1XX19CS001",
                 "name": "John Doe",
@@ -23,6 +24,7 @@ class StudentSchema(BaseModel):
                 "parentEmail": "parent@example.com"
             }
         }
+    }
 
 class UpdateStudentModel(BaseModel):
     name: Optional[str]
@@ -41,3 +43,24 @@ def ResponseModel(data, message):
 
 def ErrorResponseModel(error, code, message):
     return {"error": error, "code": code, "message": message}
+
+class DisputeSchema(BaseModel):
+    usn: str
+    date: str
+    subject: str
+    reason: str
+    status: str = Field("PENDING", description="PENDING, APPROVED, REJECTED")
+    createdAt: datetime = Field(default_factory=datetime.now)
+
+class NotificationSchema(BaseModel):
+    usn: str
+    type: str = Field(..., description="WHATSAPP, SMS, EMAIL, IN_APP")
+    message: str
+    sentAt: datetime = Field(default_factory=datetime.now)
+
+class GamificationSchema(BaseModel):
+    usn: str
+    points: int = 0
+    badges: List[str] = []
+    streakCount: int = 0
+    lastPresentDate: Optional[str] = None

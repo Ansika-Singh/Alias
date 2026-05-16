@@ -3,7 +3,7 @@ import { Video, Wifi, WifiOff, Activity, Users, Eye, RefreshCw, Maximize2, Alert
 import './Camera.css';
 
 const MOCK_NODES = [
-  { id: 'cam-01', name: 'Main Hall Entrance', location: 'Building A - Ground Floor', status: 'online', fps: 28, detections: 12, lastPing: '2s ago', videoUrl: 'http://localhost:8000/api/camera/stream' },
+  { id: 'cam-01', name: 'Main Hall Entrance', location: 'Building A - Ground Floor', status: 'online', fps: 28, detections: 12, lastPing: '2s ago', videoUrl: '/api/camera/stream' },
   { id: 'cam-02', name: 'CS Department Lab', location: 'Building B - 2nd Floor', status: 'online', fps: 25, detections: 8, lastPing: '1s ago', videoUrl: 'https://raw.githubusercontent.com/intel-iot-devkit/sample-videos/master/head-pose-face-detection-female-and-male.mp4' },
   { id: 'cam-03', name: 'Library Gate', location: 'Building C - Ground Floor', status: 'offline', fps: 0, detections: 0, lastPing: '5m ago' },
   { id: 'cam-04', name: 'Auditorium', location: 'Building A - 1st Floor', status: 'online', fps: 30, detections: 45, lastPing: '1s ago', videoUrl: 'https://raw.githubusercontent.com/intel-iot-devkit/sample-videos/master/face-demographics-walking.mp4' },

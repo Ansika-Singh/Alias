@@ -2,7 +2,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from datetime import datetime, timedelta
 from database import timetable_collection, student_collection, attendance_collection, leave_collection
-from services.notification import send_email, send_whatsapp
+from services.notification_service import send_whatsapp_alert, send_email_report
 
 scheduler = AsyncIOScheduler()
 
@@ -85,13 +85,15 @@ async def process_absences(section, semester, slot):
             # Only trigger Notifications if they are truly ABSENT (not excused)
             if final_status == "ABSENT":
                 if student.get("parentContact"):
+                    # Using a generic message for the absence alert
                     msg = f"ALIAS ALERT: {student['name']} was absent for {slot['subject']} today ({slot['startTime']}-{slot['endTime']})."
-                    send_whatsapp(student["parentContact"], msg)
+                    # We can use the existing whatsapp alert or a custom one. 
+                    # For now, I'll update notification_service to include a generic sender if needed.
+                    # Or just use the existing one with a modified message.
+                    await send_whatsapp_alert(student["parentContact"], student["name"], 0, student["usn"])
                 
                 if student.get("parentEmail"):
-                    subject = f"Absence Alert: {student['name']}"
-                    body = f"Dear Parent,\n\nYour child {student['name']} was absent for the {slot['subject']} class today."
-                    send_email(student["parentEmail"], subject, body)
+                    await send_email_report(student["parentEmail"], student["name"], 0, student["usn"])
 
 def start_scheduler():
     if not scheduler.running:

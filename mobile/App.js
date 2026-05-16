@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import LoginScreen from './screens/LoginScreen';
 import StudentDashboard from './screens/StudentDashboard';
 import TeacherDashboard from './screens/TeacherDashboard';
+import ParentDashboard from './screens/ParentDashboard';
 
 const Stack = createNativeStackNavigator();
 
@@ -34,12 +35,17 @@ export default function App() {
         <Stack.Screen 
           name="StudentDashboard" 
           component={StudentDashboard} 
-          options={{ title: 'My Attendance', headerBackVisible: false }} 
+          options={{ title: 'Student Portal', headerBackVisible: false }} 
         />
         <Stack.Screen 
           name="TeacherDashboard" 
           component={TeacherDashboard} 
-          options={{ title: "Today's Classes", headerBackVisible: false }} 
+          options={{ title: "Management Hub", headerBackVisible: false }} 
+        />
+        <Stack.Screen 
+          name="ParentDashboard" 
+          component={ParentDashboard} 
+          options={{ title: "Parent Portal", headerBackVisible: false }} 
         />
       </Stack.Navigator>
     </NavigationContainer>

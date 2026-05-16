@@ -1,13 +1,14 @@
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, Depends
 from datetime import datetime
 from bson import ObjectId
 from database import leave_collection, student_collection
 from models import ResponseModel, ErrorResponseModel
+from auth import require_roles, Roles, get_current_user
 
 router = APIRouter()
 
 @router.post("/apply", response_description="Student applies for leave")
-async def apply_leave(data: dict = Body(...)):
+async def apply_leave(data: dict = Body(...), current_user: dict = Depends(require_roles([Roles.STUDENT, Roles.PARENT]))):
     # Payload: {"usn": "...", "startDate": "YYYY-MM-DD", "endDate": "YYYY-MM-DD", "reason": "..."}
     usn = data.get("usn")
     if not usn:
@@ -31,7 +32,7 @@ async def apply_leave(data: dict = Body(...)):
     return ResponseModel({"status": "PENDING"}, "Leave request submitted successfully.")
 
 @router.post("/{leave_id}/approve", response_description="Teacher approves leave")
-async def approve_leave(leave_id: str, data: dict = Body(...)):
+async def approve_leave(leave_id: str, data: dict = Body(...), current_user: dict = Depends(require_roles([Roles.TEACHER, Roles.PRINCIPAL]))):
     # Payload: {"teacherId": "...", "decision": "APPROVED" | "REJECTED"}
     decision = data.get("decision", "APPROVED")
     

@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Response, Depends
 from fastapi.responses import StreamingResponse
 import cv2
 from services.tracking_service import FaceTrackingService
 import os
+from auth import require_roles, Roles, get_current_user
 
 router = APIRouter()
 tracker_service = FaceTrackingService()
@@ -48,9 +49,9 @@ def generate_frames():
                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
 
 @router.get("/stream")
-async def video_feed():
+async def video_feed(current_user: dict = Depends(require_roles([Roles.TEACHER, Roles.PRINCIPAL]))):
     return StreamingResponse(generate_frames(), media_type="multipart/x-mixed-replace; boundary=frame")
 
 @router.get("/attendance")
-async def get_current_attendance():
+async def get_current_attendance(current_user: dict = Depends(require_roles([Roles.TEACHER, Roles.PRINCIPAL]))):
     return tracker_service.get_attendance_report()

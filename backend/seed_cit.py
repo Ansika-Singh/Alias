@@ -3,11 +3,7 @@ import random
 from motor.motor_asyncio import AsyncIOMotorClient
 
 # Database Configuration
-MONGO_DETAILS = "mongodb://localhost:27017"
-client = AsyncIOMotorClient(MONGO_DETAILS)
-database = client.alias_db
-student_collection = database.get_collection("students_collection")
-attendance_collection = database.get_collection("attendance_collection")
+from database import student_collection, attendance_collection
 
 FIRST_NAMES = ["Aarav", "Aaryan", "Advait", "Akash", "Amit", "Ananya", "Aniket", "Anika", "Arjun", "Aryan", "Ayush", "Bhavya", "Chaitanya", "Dev", "Diya", "Gaurav", "Ishaan", "Ishani", "Karan", "Kavya", "Manish", "Mayank", "Myra", "Navya", "Nikhil", "Parth", "Pranav", "Priyanka", "Rahul", "Riya", "Rohan", "Saanvi", "Siddharth", "Sneha", "Tanvi", "Uday", "Varun", "Vihaan", "Yash", "Zoya"]
 LAST_NAMES = ["Sharma", "Verma", "Singh", "Patel", "Gupta", "Reddy", "Iyer", "Nair", "Kulkarni", "Deshmukh", "Joshi", "Rao", "Bhat", "Agarwal", "Bansal", "Mehta", "Malhotra", "Kapoor", "Khanna", "Chopra"]

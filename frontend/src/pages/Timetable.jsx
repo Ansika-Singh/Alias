@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Upload, Calendar, Clock, ChevronDown, BookOpen, User } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import './Timetable.css';
+import { postMultipart } from '../utils/api';
 
 const DAYS = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
 
@@ -89,18 +91,35 @@ const getSubjectColor = (subject) => {
 };
 
 const Timetable = () => {
+  const { t } = useTranslation();
   const [selectedDay, setSelectedDay] = useState(DAYS[new Date().getDay() === 0 ? 0 : new Date().getDay() - 1] || 'MONDAY');
   const [filterSection, setFilterSection] = useState('A');
 
-  const todayName = DAYS[new Date().getDay() === 0 ? 5 : new Date().getDay() - 1];
+  // Day names translated
+  const DAY_LABELS = {
+    MONDAY:    { hi: 'सोमवार',    kn: 'ಸೋಮವಾರ',   en: 'Monday'    },
+    TUESDAY:   { hi: 'मंगलवार',   kn: 'ಮಂಗಳವಾರ',  en: 'Tuesday'   },
+    WEDNESDAY: { hi: 'बुधवार',    kn: 'ಬುಧವಾರ',   en: 'Wednesday' },
+    THURSDAY:  { hi: 'गुरुवार',   kn: 'ಗುರುವಾರ',  en: 'Thursday'  },
+    FRIDAY:    { hi: 'शुक्रवार',  kn: 'ಶುಕ್ರವಾರ', en: 'Friday'    },
+    SATURDAY:  { hi: 'शनिवार',    kn: 'ಶನಿವಾರ',   en: 'Saturday'  },
+  };
+
+  const lang = localStorage.getItem('lang') || 'en';
+  const getDayLabel = (day) => DAY_LABELS[day]?.[lang] || DAY_LABELS[day]?.en || day;
+  const getDayShort = (day) => getDayLabel(day).slice(0, 3);
+
+  // Fix today calculation
+  const jsDay = new Date().getDay(); // 0=Sun,1=Mon,...,6=Sat
+  const todayName = jsDay === 0 ? 'SATURDAY' : DAYS[jsDay - 1];
   const slots = MOCK_TIMETABLE[selectedDay] || [];
 
   return (
     <div className="timetable-page">
       <header className="page-header">
         <div>
-          <h2 className="page-title">Timetable</h2>
-          <p className="page-subtitle">Class schedule and period management.</p>
+          <h2 className="page-title">{t('timetableTitle')}</h2>
+          <p className="page-subtitle">{t('manageSchedule')}</p>
         </div>
         <div className="header-actions">
           <div className="select-wrapper">
@@ -112,10 +131,33 @@ const Timetable = () => {
             </select>
             <ChevronDown size={14} className="select-chevron" />
           </div>
-          <button className="btn-secondary" onClick={() => {}}>
+          <label className="btn-secondary" style={{ cursor: 'pointer' }}>
             <Upload size={16} />
-            <span>Upload Excel</span>
-          </button>
+            <span>{t('uploadExcel')}</span>
+            <input 
+              type="file" 
+              accept=".xlsx" 
+              hidden 
+              onChange={async (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                  const formData = new FormData();
+                  formData.append('file', file);
+                  try {
+                    const response = await postMultipart('/timetable/upload', formData);
+                    const result = await response.json();
+                    if (result.code === 200) {
+                      alert("Timetable uploaded successfully!");
+                    } else {
+                      alert(result.message);
+                    }
+                  } catch (err) {
+                    alert("Upload failed: " + err.message);
+                  }
+                }
+              }} 
+            />
+          </label>
         </div>
       </header>
 
@@ -128,8 +170,8 @@ const Timetable = () => {
             className={`day-tab ${selectedDay === day ? 'active' : ''} ${todayName === day ? 'today' : ''}`}
             onClick={() => setSelectedDay(day)}
           >
-            <span className="day-short">{day.slice(0, 3)}</span>
-            <span className="day-full">{day.charAt(0) + day.slice(1).toLowerCase()}</span>
+            <span className="day-short">{getDayShort(day)}</span>
+            <span className="day-full">{getDayLabel(day)}</span>
             {todayName === day && <span className="today-dot" />}
           </button>
         ))}
@@ -140,7 +182,7 @@ const Timetable = () => {
         {slots.length === 0 ? (
           <div className="glass-panel empty-state" style={{ gridColumn: '1 / -1' }}>
             <Calendar size={40} />
-            <p>No classes scheduled for {selectedDay.charAt(0) + selectedDay.slice(1).toLowerCase()}.</p>
+            <p>{lang === 'hi' ? `${getDayLabel(selectedDay)} के लिए कोई कक्षा निर्धारित नहीं।` : lang === 'kn' ? `${getDayLabel(selectedDay)} ಗೆ ತರಗತಿಗಳಿಲ್ಲ.` : `No classes scheduled for ${getDayLabel(selectedDay)}.`}</p>
           </div>
         ) : (
           slots.map((slot, idx) => {
@@ -159,7 +201,7 @@ const Timetable = () => {
                   </span>
                   <span className="slot-section">
                     <BookOpen size={14} />
-                    Sem {slot.semester} / Sec {slot.section}
+                    {lang === 'hi' ? `सेम ${slot.semester} / सेक ${slot.section}` : lang === 'kn' ? `ಸೆಮ್ ${slot.semester} / ಸೆಕ್ ${slot.section}` : `Sem ${slot.semester} / Sec ${slot.section}`}
                   </span>
                 </div>
               </div>
@@ -170,12 +212,12 @@ const Timetable = () => {
 
       {/* Weekly Overview */}
       <div className="glass-panel weekly-overview">
-        <h3 style={{ marginBottom: '1rem' }}>Weekly Overview</h3>
+        <h3 style={{ marginBottom: '1rem' }}>{lang === 'hi' ? 'साप्ताहिक अवलोकन' : lang === 'kn' ? 'ವಾರದ ಅವಲೋಕನ' : 'Weekly Overview'}</h3>
         <div className="week-grid">
           {DAYS.map(day => (
             <div key={day} className="week-col">
               <div className={`week-col-header ${todayName === day ? 'today' : ''}`}>
-                {day.slice(0, 3)}
+                {getDayShort(day)}
               </div>
               {(MOCK_TIMETABLE[day] || []).map((slot, idx) => {
                 const color = getSubjectColor(slot.subject);

@@ -1,10 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Upload, Camera, CheckCircle, Users, AlertCircle, Loader2, BookOpen, ChevronDown } from 'lucide-react';
-import axios from 'axios';
+import React, { useState, useRef } from 'react';
+import { Upload, Camera, Users, AlertCircle, Loader2, BookOpen } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { postMultipart } from '../utils/api';
+import ClassroomHeatmap from '../components/ClassroomHeatmap';
 
 const MOCK_SUBJECTS = ["Data Structures", "Operating Systems", "Python Programming", "Java Development", "Computer Networks"];
 
 const PhotoAttendance = () => {
+  const { t } = useTranslation();
   const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [subject, setSubject] = useState(MOCK_SUBJECTS[0]);
@@ -45,19 +48,16 @@ const PhotoAttendance = () => {
     formData.append('subject', subject);
 
     try {
-      const response = await axios.post('http://localhost:8000/api/attendance/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const response = await postMultipart('/attendance/upload', formData);
+      const result = await response.json();
       
-      if (response.data.code === 200) {
-        setResults(response.data.data);
+      if (result.code === 200) {
+        setResults(result.data);
       } else {
-        setError(response.data.message || 'Analysis failed.');
+        setError(result.message || 'Analysis failed.');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Error uploading classroom photo. Check backend connection.');
+      setError('Error uploading classroom photo. Check backend connection.');
     } finally {
       setUploading(false);
     }
@@ -112,8 +112,8 @@ const PhotoAttendance = () => {
     <div className="photo-attendance-page" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       <header className="page-header">
         <div>
-          <h2 className="page-title">Photo Attendance</h2>
-          <p className="page-subtitle">Instant AI detection with spatial verification.</p>
+          <h2 className="page-title">{t('photoAttendance')}</h2>
+          <p className="page-subtitle">{t('instantAI')}</p>
         </div>
       </header>
 
@@ -122,7 +122,7 @@ const PhotoAttendance = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <BookOpen size={18} style={{ color: 'var(--accent-primary)' }} />
-            <span style={{ fontWeight: 500, fontSize: '0.9rem' }}>Select Subject:</span>
+            <span style={{ fontWeight: 500, fontSize: '0.9rem' }}>{t('selectSubject')}</span>
           </div>
           <div className="select-wrapper" style={{ flex: 1, maxWidth: '300px' }}>
             <select 
@@ -145,7 +145,7 @@ const PhotoAttendance = () => {
         
         <label className="btn-secondary" style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
           <Camera size={18} />
-          {selectedFile ? 'Change Photo' : 'Select Photo'}
+          {selectedFile ? t('changePhoto') : t('selectPhoto')}
           <input type="file" accept="image/*" hidden onChange={handleFileChange} />
         </label>
 
@@ -155,7 +155,7 @@ const PhotoAttendance = () => {
           onClick={handleUpload}
           style={{ width: '160px' }}
         >
-          {uploading ? <Loader2 className="animate-spin" size={18} /> : 'Process AI'}
+          {uploading ? <Loader2 className="animate-spin" size={18} /> : t('processAI')}
         </button>
       </div>
 
@@ -171,6 +171,12 @@ const PhotoAttendance = () => {
                   onLoad={handleImageLoad}
                   style={{ width: '100%', borderRadius: 'var(--radius-md)', maxHeight: '600px', objectFit: 'contain' }} 
                 />
+                {renderBoundingBoxes()}
+                <ClassroomHeatmap 
+                  imgRef={imgRef} 
+                  imgDims={imgDims} 
+                  results={results} 
+                />
               </div>
             ) : (
               <div className="upload-placeholder">
@@ -184,7 +190,7 @@ const PhotoAttendance = () => {
 
         <div className="results-sidebar">
           <div className="glass-panel" style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <h3>Detection Analysis</h3>
+            <h3>{t('detectionAnalysis')}</h3>
             
             {error && (
               <div style={{ padding: '1rem', borderRadius: 'var(--radius-md)', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--accent-danger)', display: 'flex', gap: '0.5rem', alignItems: 'center', fontSize: '0.9rem' }}>
@@ -198,13 +204,13 @@ const PhotoAttendance = () => {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div className="mini-stat glass-panel" style={{ padding: '1rem' }}>
                     <span className="mini-stat-value">{results.total_detected}</span>
-                    <span className="mini-stat-label">Faces</span>
+                    <span className="mini-stat-label">{t('facesDetected')}</span>
                   </div>
                   <div className="mini-stat glass-panel" style={{ padding: '1rem' }}>
                     <span className="mini-stat-value" style={{ color: 'var(--accent-success)' }}>
                       {results.recognized.filter(r => r.usn !== 'Unknown').length}
                     </span>
-                    <span className="mini-stat-label">Matches</span>
+                    <span className="mini-stat-label">{t('matches')}</span>
                   </div>
                 </div>
 

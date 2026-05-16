@@ -1,12 +1,14 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 import pandas as pd
 from database import timetable_collection
 from models import ResponseModel, ErrorResponseModel
+from services.audit_service import log_action, AuditActions
+from auth import require_roles, Roles, get_current_user
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(require_roles([Roles.TEACHER, Roles.PRINCIPAL]))])
 
 @router.post("/upload", response_description="Upload Timetable Excel")
-async def upload_timetable(file: UploadFile = File(...)):
+async def upload_timetable(file: UploadFile = File(...), current_user: dict = Depends(get_current_user)):
     if not file.filename.endswith('.xlsx'):
         raise HTTPException(status_code=400, detail="Please upload an Excel (.xlsx) file.")
     
@@ -52,6 +54,16 @@ async def upload_timetable(file: UploadFile = File(...)):
             )
             inserted_count += 1
             
+        # Audit Log
+        await log_action(
+            action=AuditActions.SETTINGS_CHANGE,
+            performed_by=current_user["sub"],
+            role=current_user["role"],
+            target_type="timetable",
+            target_id=file.filename,
+            details={"days_processed": inserted_count}
+        )
+        
         return ResponseModel({"days_processed": inserted_count}, "Timetable uploaded successfully.")
         
     except Exception as e:
