@@ -205,6 +205,50 @@ h1, h2, h3 {
 .detection-box.p3 { top: 52%; left: 45%; transform: translate(-50%, -50%); animation: detectionPulse 2s infinite 1s; }
 .detection-box.p4 { top: 35%; left: 68%; transform: translate(-50%, -50%); animation: detectionPulse 2s infinite 1.5s; }
 
+/* Universal Modal & Dialog Styles */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal-content, .modal {
+  width: 90%;
+  max-width: 520px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Light mode forms high contrast & readable styling */
+.form-group input,
+.form-group select,
+.form-group textarea {
+  background: white !important;
+  color: var(--text-primary) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--accent-primary) !important;
+}
+
 
 
 
