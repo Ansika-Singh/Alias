@@ -1,19 +1,20 @@
 fastapi
 uvicorn
 motor
-pydantic
+pydantic[email]
+opencv-python-headless
 python-multipart
 pandas
 openpyxl
-opencv-contrib-python-headless
-scipy
-imutils
 requests
 APScheduler
 twilio
 reportlab
 python-jose[cryptography]
 passlib[bcrypt]
+python-dotenv
 numpy
 Pillow
-face_recognition
+
+# dlib  ← keep this removed
+# face_recognition  ← keep this removed
