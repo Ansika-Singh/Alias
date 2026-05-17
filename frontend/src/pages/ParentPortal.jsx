@@ -18,6 +18,10 @@ const ParentPortal = ({ onLogout }) => {
   const [heatmapData, setHeatmapData] = useState([]);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [leaveForm, setLeaveForm] = useState({ startDate: '', endDate: '', reason: '', type: 'Sick Leave' });
+  const [leaveHistory, setLeaveHistory] = useState([
+    { type: 'Medical Leave', start: 'May 10', end: 'May 12', status: 'Approved' },
+    { type: 'Family Function', start: 'Jun 05', end: 'Jun 06', status: 'Pending' },
+  ]);
   const { i18n, t } = useTranslation();
   const lang = i18n.language;
 
@@ -101,10 +105,28 @@ const ParentPortal = ({ onLogout }) => {
 
   const handleLeaveSubmit = async (e) => {
     e.preventDefault();
+    const newLeave = {
+      type: leaveForm.type,
+      start: leaveForm.startDate.split('-').reverse().slice(0,2).join(' '), // Format date nicely for preview e.g. "17 May"
+      end: leaveForm.endDate.split('-').reverse().slice(0,2).join(' '),
+      status: 'Pending'
+    };
+
     try {
       const response = await post('/leaves', { usn: studentUsn, ...leaveForm, status: 'PENDING' });
-      if (response.ok) { alert('Leave request submitted!'); setShowLeaveModal(false); }
-    } catch { alert('Leave request submitted! (demo)'); setShowLeaveModal(false); }
+      if (response.ok) {
+        alert('Leave request submitted!');
+      } else {
+        alert('Leave request submitted! (demo)');
+      }
+    } catch (err) {
+      console.warn("Backend leave submit failed, using visual demo fallback:", err);
+      alert('Leave request submitted! (demo)');
+    } finally {
+      setLeaveHistory(prev => [newLeave, ...prev]);
+      setShowLeaveModal(false);
+      setLeaveForm({ startDate: '', endDate: '', reason: '', type: 'Sick Leave' });
+    }
   };
 
   if (loading) return <div className="loading">Loading Parent Dashboard...</div>;
@@ -291,7 +313,7 @@ const ParentPortal = ({ onLogout }) => {
               <div className="leave-section">
                 <div className="leave-history">
                   <h5>Recent Leave Applications</h5>
-                  {childExtras.leaveHistory.map((l, i) => (
+                  {leaveHistory.map((l, i) => (
                     <div key={i} className="leave-item">
                       <div className="leave-info"><strong>{l.type}</strong><span>{l.start} — {l.end}</span></div>
                       <span className={`status-badge ${l.status.toLowerCase()}`}>{l.status}</span>
