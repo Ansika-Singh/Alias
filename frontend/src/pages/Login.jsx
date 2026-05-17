@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User, Lock, ArrowRight, ShieldCheck, Users, GraduationCap, Crown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { BASE_URL } from '../utils/api';
 
 const Login = ({ onLogin }) => {
   const [role, setRole] = useState('teacher');
@@ -21,7 +22,7 @@ const Login = ({ onLogin }) => {
       formData.append('username', email);
       formData.append('password', password);
 
-      const response = await fetch(`https://Ansika26-Alias-backend.hf.space/api/auth/login?role=${role}`, {
+      const response = await fetch(`${BASE_URL}/auth/login?role=${role}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formData.toString()
@@ -83,8 +84,8 @@ const Login = ({ onLogin }) => {
       zIndex: 9999
     }}>
       {/* Abstract Background Shapes */}
-      <div style={{ position: 'absolute', width: '300px', height: '300px', background: 'var(--accent-primary)', filter: 'blur(150px)', opacity: 0.1, top: '10%', left: '10%', borderRadius: '50%' }} />
-      <div style={{ position: 'absolute', width: '400px', height: '400px', background: 'var(--accent-secondary)', filter: 'blur(200px)', opacity: 0.1, bottom: '10%', right: '10%', borderRadius: '50%' }} />
+      <div style={{ position: 'absolute', width: '300px', height: '300px', background: 'var(--accent-primary)', filter: 'blur(150px)', opacity: 0.1, top: '10%', left: '10%', borderRadius: '50%', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', width: '400px', height: '400px', background: 'var(--accent-secondary)', filter: 'blur(200px)', opacity: 0.1, bottom: '10%', right: '10%', borderRadius: '50%', pointerEvents: 'none' }} />
 
       <div className="glass-panel" style={{
         width: '100%',

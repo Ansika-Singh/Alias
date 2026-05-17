@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-MONGO_DETAILS = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+MONGO_DETAILS = os.getenv("MONGO_URI") or os.getenv("MONGODB_URI") or "mongodb://localhost:27017"
 DB_NAME = os.getenv("DB_NAME", "alias_db")
 
 # Strip tlsInsecure from URI — handled via kwargs
