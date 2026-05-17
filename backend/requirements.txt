@@ -16,5 +16,4 @@ python-jose[cryptography]
 passlib[bcrypt]
 numpy
 Pillow
-dlib==19.24.2
 face_recognition
