@@ -1,0 +1,20 @@
+fastapi
+uvicorn
+motor
+pydantic[email]
+opencv-python-headless
+python-multipart
+pandas
+openpyxl
+requests
+APScheduler
+twilio
+reportlab
+python-jose[cryptography]
+passlib[bcrypt]
+python-dotenv
+numpy
+Pillow
+
+# dlib  ← keep this removed
+# face_recognition  ← keep this removed
