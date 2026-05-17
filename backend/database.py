@@ -35,6 +35,8 @@ leave_collection          = database.get_collection("leaves")
 notification_collection   = database.get_collection("notifications")
 gamification_collection   = database.get_collection("gamification")
 dispute_collection        = database.get_collection("disputes")
+assignment_collection     = database.get_collection("assignments")
+exam_collection           = database.get_collection("exams")
 
 
 def student_helper(student) -> dict:

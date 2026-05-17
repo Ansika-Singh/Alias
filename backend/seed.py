@@ -1,6 +1,6 @@
 import asyncio
 from datetime import datetime, timedelta
-from database import student_collection, timetable_collection, attendance_collection, teacher_collection, dispute_collection, gamification_collection, database
+from database import student_collection, timetable_collection, attendance_collection, teacher_collection, dispute_collection, gamification_collection, database, assignment_collection, exam_collection
 import random
 
 # Get the audit collection
@@ -17,6 +17,8 @@ async def seed_data():
     await dispute_collection.delete_many({})
     await gamification_collection.delete_many({})
     await audit_collection.delete_many({})
+    await assignment_collection.delete_many({})
+    await exam_collection.delete_many({})
     print("[DONE] Cleared all existing collections.")
 
     # ─── 2. Students with Parent Info ────────────────────────────────────────
@@ -242,6 +244,22 @@ async def seed_data():
     ]
     await audit_collection.insert_many(audit_logs)
     print("✅ Inserted sample audit logs.")
+
+    # 8. Academics Seeding
+    default_assignments = [
+        {"title": "MapReduce Implementation", "course": "CS501", "due": "2026-05-18", "submitted": 38, "total": 50, "createdAt": datetime.utcnow()},
+        {"title": "Neural Network Report", "course": "CS502", "due": "2026-05-21", "submitted": 45, "total": 50, "createdAt": datetime.utcnow()},
+        {"title": "Design Patterns Quiz", "course": "CS503", "due": "2026-05-19", "submitted": 22, "total": 50, "createdAt": datetime.utcnow()},
+    ]
+    await assignment_collection.insert_many(default_assignments)
+
+    default_exams = [
+        {"subject": "Distributed Systems", "date": "2026-05-20", "time": "10:00 AM", "room": "LH-301", "invigilator": "Dr. Wilson", "createdAt": datetime.utcnow()},
+        {"subject": "Machine Learning", "date": "2026-05-22", "time": "02:00 PM", "room": "LH-102", "invigilator": "Prof. Chen", "createdAt": datetime.utcnow()},
+        {"subject": "Software Engineering", "date": "2026-05-25", "time": "10:00 AM", "room": "Lab-4", "invigilator": "Dr. Rodriguez", "createdAt": datetime.utcnow()},
+    ]
+    await exam_collection.insert_many(default_exams)
+    print("✅ Inserted mock assignments and exams.")
 
     print("\n🎉 ALIAS Enterprise seeding complete!")
     print(f"   📊 {len(student_ids)} students")

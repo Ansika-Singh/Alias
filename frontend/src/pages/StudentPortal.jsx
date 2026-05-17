@@ -238,6 +238,9 @@ const StudentPortal = ({ onLogout }) => {
     ]
   };
 
+  const [assignmentsList, setAssignmentsList] = useState(portalData.assignments);
+  const [examsList, setExamsList] = useState(portalData.exams);
+
   useEffect(() => {
     fetchStudentData();
   }, []);
@@ -270,6 +273,26 @@ const StudentPortal = ({ onLogout }) => {
       const heatmapResult = await heatmapRes.json();
       if (heatmapResult.code === 200) {
         setHeatmapData(heatmapResult.data);
+      }
+
+      try {
+        const assignmentsRes = await get('/academics/assignments');
+        const assignmentsResult = await assignmentsRes.json();
+        if (assignmentsResult.code === 200 && assignmentsResult.data.length > 0) {
+          setAssignmentsList(assignmentsResult.data);
+        }
+      } catch (err) {
+        console.warn("Failed to fetch assignments:", err);
+      }
+
+      try {
+        const examsRes = await get('/academics/exams');
+        const examsResult = await examsRes.json();
+        if (examsResult.code === 200 && examsResult.data.length > 0) {
+          setExamsList(examsResult.data);
+        }
+      } catch (err) {
+        console.warn("Failed to fetch exams:", err);
       }
     } catch (error) {
       console.error("Error fetching student data, using mock data:", error);
@@ -457,16 +480,16 @@ const StudentPortal = ({ onLogout }) => {
                 <div className="assignment-list-container">
                   <h5>Assignments</h5>
                   <div className="task-list">
-                    {portalData.assignments.map(task => (
-                      <div key={task.id} className="task-item">
+                    {assignmentsList.map(task => (
+                      <div key={task.id || task.title} className="task-item">
                         <div className="task-check">
-                          {task.status === 'Submitted' ? <CheckCircle size={20} className="success" /> : <Clock size={20} className="pending" />}
+                          {task.status === 'Submitted' || task.submitted > 0 ? <CheckCircle size={20} className="success" /> : <Clock size={20} className="pending" />}
                         </div>
                         <div className="task-info">
                           <strong>{task.title}</strong>
                           <span>{task.course} • Due: {task.due}</span>
                         </div>
-                        <span className={`priority-tag ${task.priority.toLowerCase()}`}>{task.priority}</span>
+                        <span className={`priority-tag ${(task.priority || 'Medium').toLowerCase()}`}>{task.priority || 'Medium'}</span>
                       </div>
                     ))}
                   </div>
@@ -539,14 +562,14 @@ const StudentPortal = ({ onLogout }) => {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem' }}>Upcoming</div>
-                {portalData.exams.slice(0, 2).map(e => (
-                  <div key={e.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', padding: '0.75rem 1rem', borderRadius: '10px' }}>
+                {examsList.slice(0, 4).map(e => (
+                  <div key={e.id || e.subject} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', padding: '0.75rem 1rem', borderRadius: '10px' }}>
                     <div>
                       <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{e.subject}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{e.room}</div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{e.room || 'TBD'} • {e.time || 'TBD'}</div>
                     </div>
                     <span style={{ background: '#fef3c7', color: '#92400e', fontSize: '0.75rem', fontWeight: 700, padding: '0.3rem 0.7rem', borderRadius: '20px' }}>
-                      📅 {e.date.slice(5)}
+                      📅 {e.date && e.date.includes('-') ? e.date.slice(5) : e.date || 'TBD'}
                     </span>
                   </div>
                 ))}

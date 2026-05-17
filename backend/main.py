@@ -11,6 +11,7 @@ from routes.registration import router as RegistrationRouter
 from routes.student_portal import router as StudentPortalRouter
 from routes.qr import router as QRRouter
 from routes.audit import router as AuditRouter
+from routes.academics import router as AcademicsRouter
 from services.scheduler import start_scheduler
 
 app = FastAPI(title="ALIAS Backend API", description="Automated Live Identification & Attendance System")
@@ -63,6 +64,7 @@ app.include_router(RegistrationRouter, tags=["Registration"], prefix="/api/regis
 app.include_router(StudentPortalRouter, tags=["Student Portal"], prefix="/api/portal")
 app.include_router(QRRouter, tags=["QR Codes"], prefix="/api/qr")
 app.include_router(AuditRouter, tags=["Audit Logs"], prefix="/api/audit")
+app.include_router(AcademicsRouter, tags=["Academics"], prefix="/api/academics")
 
 if __name__ == "__main__":
     import uvicorn

@@ -64,3 +64,41 @@ class GamificationSchema(BaseModel):
     badges: List[str] = []
     streakCount: int = 0
     lastPresentDate: Optional[str] = None
+
+class AssignmentSchema(BaseModel):
+    title: str = Field(..., description="Assignment Title")
+    course: str = Field(..., description="Course code (e.g., CS501)")
+    due: str = Field(..., description="Due date (YYYY-MM-DD)")
+    submitted: int = Field(0, description="Number of students submitted")
+    total: int = Field(50, description="Total number of students")
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "title": "MapReduce Implementation",
+                "course": "CS501",
+                "due": "2026-05-18",
+                "submitted": 38,
+                "total": 50
+            }
+        }
+    }
+
+class ExamSchema(BaseModel):
+    subject: str = Field(..., description="Exam Subject Name")
+    date: str = Field(..., description="Date of Exam (YYYY-MM-DD)")
+    time: str = Field(..., description="Time of Exam (e.g. 10:00 AM)")
+    room: str = Field(..., description="Room allocated (e.g. LH-301)")
+    invigilator: str = Field(..., description="Name of the invigilator")
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "subject": "Distributed Systems",
+                "date": "2026-05-20",
+                "time": "10:00 AM",
+                "room": "LH-301",
+                "invigilator": "Dr. Wilson"
+            }
+        }
+    }

@@ -11,7 +11,7 @@ import AttendanceTable from '../components/AttendanceTable';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar } from 'recharts';
 import VoiceAssistant from '../components/VoiceAssistant';
 import CampusCalendar from '../components/CampusCalendar';
-import { get } from '../utils/api';
+import { get, post } from '../utils/api';
 import './Dashboard.css';
 
 const MOCK_STATS = [
@@ -116,6 +116,74 @@ const Dashboard = () => {
   const [showAnnModal, setShowAnnModal] = useState(false);
   const [newAnn, setNewAnn] = useState({ title: '', category: 'General', body: '' });
 
+  // Dynamic lists for reactive assignments & exams
+  const [assignmentsList, setAssignmentsList] = useState(TEACHER_DATA.assignments);
+  const [examsList, setExamsList] = useState(TEACHER_DATA.exams);
+
+  // Modal open states
+  const [showAssignmentModal, setShowAssignmentModal] = useState(false);
+  const [showExamModal, setShowExamModal] = useState(false);
+
+  // Form states
+  const [newAssignment, setNewAssignment] = useState({ title: '', course: 'CS501', due: '', total: 50 });
+  const [newExam, setNewExam] = useState({ subject: '', date: '', time: '', room: '', invigilator: '' });
+
+  const handleAddAssignment = async (e) => {
+    e.preventDefault();
+    const created = {
+      title: newAssignment.title,
+      course: newAssignment.course,
+      due: newAssignment.due,
+      submitted: 0,
+      total: parseInt(newAssignment.total) || 50
+    };
+
+    try {
+      const res = await post('/academics/assignments', created);
+      const resData = await res.json();
+      if (resData.code === 200) {
+        setAssignmentsList(prev => [resData.data, ...prev]);
+      } else {
+        setAssignmentsList(prev => [{ id: Date.now(), ...created }, ...prev]);
+      }
+    } catch (err) {
+      console.warn("Failed to save assignment via API, falling back to local state:", err);
+      setAssignmentsList(prev => [{ id: Date.now(), ...created }, ...prev]);
+    }
+
+    setShowAssignmentModal(false);
+    setNewAssignment({ title: '', course: 'CS501', due: '', total: 50 });
+    alert(lang === 'hi' ? 'असाइनमेंट जोड़ा गया!' : lang === 'kn' ? 'ಅಸೈನ್‌ಮೆಂಟ್ ಸೇರಿಸಲಾಗಿದೆ!' : 'Assignment added successfully!');
+  };
+
+  const handleAddExam = async (e) => {
+    e.preventDefault();
+    const created = {
+      subject: newExam.subject,
+      date: newExam.date,
+      time: newExam.time,
+      room: newExam.room,
+      invigilator: newExam.invigilator
+    };
+
+    try {
+      const res = await post('/academics/exams', created);
+      const resData = await res.json();
+      if (resData.code === 200) {
+        setExamsList(prev => [resData.data, ...prev]);
+      } else {
+        setExamsList(prev => [created, ...prev]);
+      }
+    } catch (err) {
+      console.warn("Failed to save exam via API, falling back to local state:", err);
+      setExamsList(prev => [created, ...prev]);
+    }
+
+    setShowExamModal(false);
+    setNewExam({ subject: '', date: '', time: '', room: '', invigilator: '' });
+    alert(lang === 'hi' ? 'परीक्षा जोड़ी गई!' : lang === 'kn' ? 'ಪರೀಕ್ಷೆ ಸೇರಿಸಲಾಗಿದೆ!' : 'Exam scheduled successfully!');
+  };
+
   const userRole = localStorage.getItem('userRole') || 'teacher';
   const isPrincipal = userRole === 'principal';
   const userName = localStorage.getItem('userName') || (isPrincipal ? 'Principal' : 'Teacher');
@@ -152,11 +220,31 @@ const Dashboard = () => {
             `${count} students at risk below 75%.`
           );
         }
+
+        try {
+          const assignmentsRes = await get('/academics/assignments');
+          const assignmentsData = await assignmentsRes.json();
+          if (assignmentsData.code === 200 && assignmentsData.data.length > 0) {
+            setAssignmentsList(assignmentsData.data);
+          }
+        } catch (err) {
+          console.warn("Failed to fetch assignments:", err);
+        }
+
+        try {
+          const examsRes = await get('/academics/exams');
+          const examsData = await examsRes.json();
+          if (examsData.code === 200 && examsData.data.length > 0) {
+            setExamsList(examsData.data);
+          }
+        } catch (err) {
+          console.warn("Failed to fetch exams:", err);
+        }
       } catch { /* use mock data */ }
       finally { setLoading(false); }
     };
     fetchData();
-  }, []);
+  }, [lang]);
 
   const filteredStudents = TEACHER_DATA.students.filter(s =>
     s.name.toLowerCase().includes(studentSearch.toLowerCase()) ||
@@ -267,7 +355,7 @@ const Dashboard = () => {
           <div className="glass-panel">
             <div className="panel-header">
               <h3>{lang==='hi'?'असाइनमेंट सबमिशन':lang==='kn'?'ಅಸೈನ್‌ಮೆಂಟ್ ಸಲ್ಲಿಕೆ':'Assignment Submissions'}</h3>
-              <button className="btn-primary"><Plus size={16} /> {lang==='hi'?'असाइनमेंट जोड़ें':lang==='kn'?'ಅಸೈನ್‌ಮೆಂಟ್ ಸೇರಿಸಿ':'Add Assignment'}</button>
+              <button className="btn-primary" onClick={() => setShowAssignmentModal(true)}><Plus size={16} /> {lang==='hi'?'असाइनमेंट जोड़ें':lang==='kn'?'ಅಸೈನ್‌ಮೆಂಟ್ ಸೇರಿಸಿ':'Add Assignment'}</button>
             </div>
             <table className="dash-table">
               <thead><tr>
@@ -278,7 +366,7 @@ const Dashboard = () => {
                 <th>{lang==='hi'?'प्रगति':lang==='kn'?'ಪ್ರಗತಿ':'Progress'}</th>
               </tr></thead>
               <tbody>
-                {TEACHER_DATA.assignments.map(a => (
+                {assignmentsList.map(a => (
                   <tr key={a.id}>
                     <td><strong>{a.title}</strong></td>
                     <td>{a.course}</td><td>{a.due}</td>
@@ -308,9 +396,9 @@ const Dashboard = () => {
             <div className="glass-panel">
               <div className="panel-header">
                 <h3>{lang==='hi'?'परीक्षा कार्यक्रम':lang==='kn'?'ಪರೀಕ್ಷಾ ವೇಳಾಪಟ್ಟಿ':'Exam Schedule'}</h3>
-                <button className="btn-primary"><Plus size={16} /> {lang==='hi'?'परीक्षा जोड़ें':lang==='kn'?'ಪರೀಕ್ಷೆ ಸೇರಿಸಿ':'Add Exam'}</button>
+                <button className="btn-primary" onClick={() => setShowExamModal(true)}><Plus size={16} /> {lang==='hi'?'परीक्षा जोड़ें':lang==='kn'?'ಪರೀಕ್ಷೆ ಸೇರಿಸಿ':'Add Exam'}</button>
               </div>
-              {TEACHER_DATA.exams.map((e, i) => (
+              {examsList.map((e, i) => (
                 <div key={i} className="exam-mgmt-item">
                   <div>
                     <strong>{e.subject}</strong>
@@ -492,6 +580,81 @@ const Dashboard = () => {
               <div className="modal-actions">
                 <button type="button" onClick={() => setShowAnnModal(false)}>{lang==='hi'?'रद्द करें':lang==='kn'?'ರದ್ದು':'Cancel'}</button>
                 <button type="submit" className="btn-primary">{lang==='hi'?'घोषणा प्रकाशित करें':lang==='kn'?'ಪ್ರಕಟಣೆ ಪ್ರಕಟಿಸಿ':'Publish Announcement'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showAssignmentModal && (
+        <div className="modal-overlay">
+          <div className="glass-panel modal-content">
+            <h2>{lang==='hi'?'नया असाइनमेंट जोड़ें':lang==='kn'?'ಹೊಸ ಅಸೈನ್‌ಮೆಂಟ್ ಸೇರಿಸಿ':'Add New Assignment'}</h2>
+            <form onSubmit={handleAddAssignment}>
+              <div className="form-group">
+                <label>{lang==='hi'?'असाइनमेंट शीर्षक':lang==='kn'?'ಅಸೈನ್‌ಮೆಂಟ್ ಶೀರ್ಷಿಕೆ':'Assignment Title'}</label>
+                <input type="text" required value={newAssignment.title} onChange={e => setNewAssignment({...newAssignment, title: e.target.value})} placeholder="e.g. Smart Attendance Report" />
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>{lang==='hi'?'कोर्स':lang==='kn'?'ಕೋರ್ಸ್':'Course'}</label>
+                  <select value={newAssignment.course} onChange={e => setNewAssignment({...newAssignment, course: e.target.value})}>
+                    <option value="CS501">CS501 - Distributed Systems</option>
+                    <option value="CS502">CS502 - Machine Learning</option>
+                    <option value="CS503">CS503 - Software Engineering</option>
+                    <option value="CS504">CS504 - Digital Image Processing</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>{lang==='hi'?'अंतिम तिथि':lang==='kn'?'ಕೊನೆ ದಿನಾಂಕ':'Due Date'}</label>
+                  <input type="date" required value={newAssignment.due} onChange={e => setNewAssignment({...newAssignment, due: e.target.value})} />
+                </div>
+              </div>
+              <div className="form-group">
+                <label>{lang==='hi'?'कुल छात्र':lang==='kn'?'ಒಟ್ಟು ವಿದ್ಯಾರ್ಥಿಗಳು':'Total Students'}</label>
+                <input type="number" required value={newAssignment.total} onChange={e => setNewAssignment({...newAssignment, total: e.target.value})} />
+              </div>
+              <div className="modal-actions">
+                <button type="button" onClick={() => setShowAssignmentModal(false)}>{lang==='hi'?'रद्द करें':lang==='kn'?'ರದ್ದು':'Cancel'}</button>
+                <button type="submit" className="btn-primary">{lang==='hi'?'असाइनमेंट बनाएं':lang==='kn'?'ಅಸೈನ್‌ಮೆಂಟ್ ರಚಿಸಿ':'Create Assignment'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showExamModal && (
+        <div className="modal-overlay">
+          <div className="glass-panel modal-content">
+            <h2>{lang==='hi'?'नई परीक्षा अनुसूची जोड़ें':lang==='kn'?'ಹೊಸ ಪರೀಕ್ಷಾ ವೇಳಾಪಟ್ಟಿ ಸೇರಿಸಿ':'Schedule New Exam'}</h2>
+            <form onSubmit={handleAddExam}>
+              <div className="form-group">
+                <label>{lang==='hi'?'विषय':lang==='kn'?'ವಿಷಯ':'Subject'}</label>
+                <input type="text" required value={newExam.subject} onChange={e => setNewExam({...newExam, subject: e.target.value})} placeholder="e.g. Distributed Systems" />
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>{lang==='hi'?'दिनांक':lang==='kn'?'ದಿನಾಂಕ':'Date'}</label>
+                  <input type="date" required value={newExam.date} onChange={e => setNewExam({...newExam, date: e.target.value})} />
+                </div>
+                <div className="form-group">
+                  <label>{lang==='hi'?'समय':lang==='kn'?'ಸಮಯ':'Time'}</label>
+                  <input type="text" required value={newExam.time} onChange={e => setNewExam({...newExam, time: e.target.value})} placeholder="e.g. 10:00 AM" />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>{lang==='hi'?'कमरा':lang==='kn'?'ಕೊಠಡಿ':'Room'}</label>
+                  <input type="text" required value={newExam.room} onChange={e => setNewExam({...newExam, room: e.target.value})} placeholder="e.g. LH-301" />
+                </div>
+                <div className="form-group">
+                  <label>{lang==='hi'?'परीक्षक':lang==='kn'?'ಪರೀಕ್ಷಕ':'Invigilator'}</label>
+                  <input type="text" required value={newExam.invigilator} onChange={e => setNewExam({...newExam, invigilator: e.target.value})} placeholder="e.g. Dr. Wilson" />
+                </div>
+              </div>
+              <div className="modal-actions">
+                <button type="button" onClick={() => setShowExamModal(false)}>{lang==='hi'?'रद्द करें':lang==='kn'?'ರದ್ದು':'Cancel'}</button>
+                <button type="submit" className="btn-primary">{lang==='hi'?'परीक्षा निर्धारित करें':lang==='kn'?'ಪರೀಕ್ಷೆ ನಿಗದಿಪಡಿಸಿ':'Schedule Exam'}</button>
               </div>
             </form>
           </div>

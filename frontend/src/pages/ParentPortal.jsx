@@ -88,6 +88,9 @@ const ParentPortal = ({ onLogout }) => {
     ]
   };
 
+  const [assignmentsList, setAssignmentsList] = useState(childExtras.assignments);
+  const [examsList, setExamsList] = useState(childExtras.exams);
+
   useEffect(() => { fetchData(); }, []);
 
   const fetchData = async () => {
@@ -96,9 +99,30 @@ const ParentPortal = ({ onLogout }) => {
       const result = await response.json();
       if (result.code === 200) setData(result.data);
       else setData(mockChildData);
+      
       const heatmapRes = await get(`/analytics/heatmap/${studentUsn}`);
       const heatmapResult = await heatmapRes.json();
       if (heatmapResult.code === 200) setHeatmapData(heatmapResult.data);
+
+      try {
+        const assignmentsRes = await get('/academics/assignments');
+        const assignmentsResult = await assignmentsRes.json();
+        if (assignmentsResult.code === 200 && assignmentsResult.data.length > 0) {
+          setAssignmentsList(assignmentsResult.data);
+        }
+      } catch (err) {
+        console.warn("Failed to fetch assignments:", err);
+      }
+
+      try {
+        const examsRes = await get('/academics/exams');
+        const examsResult = await examsRes.json();
+        if (examsResult.code === 200 && examsResult.data.length > 0) {
+          setExamsList(examsResult.data);
+        }
+      } catch (err) {
+        console.warn("Failed to fetch exams:", err);
+      }
     } catch { setData(mockChildData); }
     finally { setLoading(false); }
   };
@@ -226,10 +250,10 @@ const ParentPortal = ({ onLogout }) => {
             <div className="glass-card full-width">
               <div className="card-header"><h3>Assignments Overview <span className="read-only-tag">Read Only</span></h3><BookOpen size={20} /></div>
               <div className="parent-list">
-                {childExtras.assignments.map((a, i) => (
+                {assignmentsList.map((a, i) => (
                   <div key={i} className="parent-list-item">
                     <div><strong>{a.title}</strong><span>{a.course} • Due: {a.due}</span></div>
-                    <span className={`status-tag ${a.status === 'Submitted' ? 'present' : 'absent'}`}>{a.status}</span>
+                    <span className={`status-tag ${a.status === 'Submitted' || a.submitted > 0 ? 'present' : 'absent'}`}>{a.status || (a.submitted > 0 ? 'Submitted' : 'Pending')}</span>
                   </div>
                 ))}
               </div>
@@ -245,9 +269,9 @@ const ParentPortal = ({ onLogout }) => {
             </div>
             <div className="glass-card">
               <div className="card-header"><h3>Upcoming Exams <span className="read-only-tag">Read Only</span></h3><FileText size={20} /></div>
-              {childExtras.exams.map((e, i) => (
+              {examsList.map((e, i) => (
                 <div key={i} className="parent-list-item">
-                  <div><strong>{e.subject}</strong><span>{e.date} • {e.time} • {e.room}</span></div>
+                  <div><strong>{e.subject}</strong><span>{e.date} • {e.time || 'TBD'} • {e.room || 'TBD'}</span></div>
                   <span className="status-tag upcoming">Upcoming</span>
                 </div>
               ))}
