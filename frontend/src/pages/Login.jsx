@@ -21,7 +21,7 @@ const Login = ({ onLogin }) => {
       formData.append('username', email);
       formData.append('password', password);
 
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch(`/api/auth/login?role=${role}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formData.toString()

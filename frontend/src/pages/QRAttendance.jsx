@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { QrCode, RefreshCw, Shield, Clock, Users, CheckCircle2, XCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { QRCodeSVG } from 'qrcode.react';
 import './QRAttendance.css';
 import { get, post } from '../utils/api';
 
@@ -127,65 +128,34 @@ const QRAttendance = () => {
     };
   }, []);
 
-  // Generate QR code SVG (simple representation)
+  // Build the JSON payload that will be encoded into the real QR code.
+  // Students scan this; their scanner parses token + session_id + subject.
+  const buildQRPayload = () => {
+    if (!qrData) return '';
+    return JSON.stringify({
+      token:      qrData.token,
+      session_id: qrData.session_id,
+      subject:    sessionConfig.subject,
+      section:    sessionConfig.section,
+      semester:   sessionConfig.semester,
+    });
+  };
+
+  // Render a real scannable QR using qrcode.react
   const renderQRCode = () => {
-    if (!qrData) return null;
-    
-    const token = qrData.token || '';
-    // Create a visual QR-like pattern from the token
-    const cells = [];
-    const size = 15;
-    
-    // Use token characters to seed a pattern
-    for (let row = 0; row < size; row++) {
-      for (let col = 0; col < size; col++) {
-        // Corner markers (QR finder patterns)
-        const isCornerMarker = (
-          (row < 3 && col < 3) || 
-          (row < 3 && col >= size - 3) || 
-          (row >= size - 3 && col < 3)
-        );
-        const isCornerInner = (
-          (row === 1 && col === 1) || 
-          (row === 1 && col === size - 2) || 
-          (row === size - 2 && col === 1)
-        );
-        
-        if (isCornerMarker && !isCornerInner) {
-          cells.push({ row, col, filled: true });
-        } else if (isCornerInner) {
-          cells.push({ row, col, filled: true });
-        } else {
-          // Data cells - use hash of token + position
-          const charIndex = (row * size + col) % token.length;
-          const charCode = token.charCodeAt(charIndex) || 0;
-          const filled = ((charCode + row * 7 + col * 13) % 3) !== 0;
-          cells.push({ row, col, filled });
-        }
-      }
-    }
-    
-    const cellSize = 16;
-    const padding = 20;
-    const svgSize = size * cellSize + padding * 2;
-    
+    const payload = buildQRPayload();
+    if (!payload) return null;
     return (
-      <svg width={svgSize} height={svgSize} viewBox={`0 0 ${svgSize} ${svgSize}`} className="qr-svg">
-        <rect width={svgSize} height={svgSize} fill="white" rx="12" />
-        {cells.map((cell, idx) => (
-          cell.filled && (
-            <rect
-              key={idx}
-              x={padding + cell.col * cellSize}
-              y={padding + cell.row * cellSize}
-              width={cellSize - 1}
-              height={cellSize - 1}
-              fill="#1a1a2e"
-              rx="2"
-            />
-          )
-        ))}
-      </svg>
+      <QRCodeSVG
+        value={payload}
+        size={260}
+        bgColor="#ffffff"
+        fgColor="#1a1a2e"
+        level="M"
+        includeMargin={true}
+        className="qr-svg"
+        style={{ borderRadius: 16, boxShadow: '0 4px 24px rgba(0,0,0,0.12)' }}
+      />
     );
   };
 

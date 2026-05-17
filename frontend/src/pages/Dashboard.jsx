@@ -22,12 +22,14 @@ const MOCK_STATS = [
 ];
 
 const MOCK_CHART_DATA = [
-  { name: 'Mon', attendance: 210, avg: 200 },
-  { name: 'Tue', attendance: 195, avg: 200 },
-  { name: 'Wed', attendance: 220, avg: 200 },
-  { name: 'Thu', attendance: 205, avg: 200 },
-  { name: 'Fri', attendance: 215, avg: 200 },
-  { name: 'Sat', attendance: 140, avg: 200 },
+  { name: 'W1', attendance: 78 },
+  { name: 'W2', attendance: 82 },
+  { name: 'W3', attendance: 75 },
+  { name: 'W4', attendance: 88 },
+  { name: 'W5', attendance: 84 },
+  { name: 'W6', attendance: 91 },
+  { name: 'W7', attendance: 86 },
+  { name: 'W8', attendance: 89 },
 ];
 
 const MOCK_ATTENDANCE = [
@@ -135,7 +137,7 @@ const Dashboard = () => {
         const trendsRes = await get('/analytics/trends/A/6');
         const trendsData = await trendsRes.json();
         if (trendsData.code === 200) {
-          setChartData(trendsData.data.map(w => ({ name: w.week, attendance: w.percentage, avg: 200 })));
+          setChartData(trendsData.data.map(w => ({ name: w.week, attendance: w.percentage })));
         }
         const logsRes = await get('/attendance/', { limit: 10 });
         const logsData = await logsRes.json();
@@ -189,6 +191,11 @@ const Dashboard = () => {
 
       {activeTab === 'overview' && (
         <div className="dash-content">
+          {new Date().getDay() === 0 && (
+            <div className="day-off-banner">
+              🏖️ No college today — it's Sunday. Attendance figures will resume tomorrow.
+            </div>
+          )}
           <div className="stat-grid">
             {stats.map((stat, idx) => <StatCard key={idx} {...stat} />)}
           </div>
@@ -206,8 +213,8 @@ const Dashboard = () => {
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" vertical={false} />
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
-                  <Tooltip contentStyle={{ background: 'white', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '10px' }} />
+                  <YAxis domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fontSize: 12 }} tickFormatter={(v) => `${v}%`} />
+                  <Tooltip contentStyle={{ background: 'white', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '10px' }} formatter={(v) => [`${v}%`, 'Attendance']} />
                   <Area type="monotone" dataKey="attendance" stroke="var(--accent-primary)" fillOpacity={1} fill="url(#colorAttend)" strokeWidth={3} />
                 </AreaChart>
               </ResponsiveContainer>

@@ -123,35 +123,22 @@ const ParentPortal = ({ onLogout }) => {
         <div className="parent-actions">
           <div className="child-stat-pill"><Flame size={16} className="icon-streak" /><span>{data?.gamification?.streakCount || 0} {s('dayStreak')}</span></div>
           <div className="child-stat-pill"><Award size={16} className="icon-points" /><span>{data?.gamification?.points || 0} {s('points')}</span></div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.1)', padding: '0.4rem 0.8rem', borderRadius: 'var(--radius-full)' }}>
-            <Languages size={18} />
-            <select 
-              value={i18n.language}
-              onChange={(e) => { i18n.changeLanguage(e.target.value); localStorage.setItem('lang', e.target.value); }}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: 'var(--text-primary)',
-                fontWeight: '500',
-                outline: 'none',
-                cursor: 'pointer'
-              }}
-            >
-              <option value="en" style={{color: 'black'}}>English</option>
-              <option value="kn" style={{color: 'black'}}>ಕನ್ನಡ</option>
-              <option value="hi" style={{color: 'black'}}>हिन्दी</option>
-            </select>
-          </div>
-          <button onClick={onLogout} style={{
-            display: 'flex', alignItems: 'center', gap: '0.5rem',
-            background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)',
-            color: '#dc2626', padding: '0.4rem 0.9rem', borderRadius: '20px',
-            cursor: 'pointer', fontWeight: 600, fontSize: '0.82rem', fontFamily: 'inherit'
-          }}>
-            {s('logout')}
-          </button>
           <button className="btn-secondary"><Mail size={16} /> {s('emailTeacher')}</button>
           <button className="btn-secondary"><Phone size={16} /> {s('callAdmin')}</button>
+          <div className="parent-lang-select">
+            <Languages size={16} />
+            <select
+              value={i18n.language}
+              onChange={(e) => { i18n.changeLanguage(e.target.value); localStorage.setItem('lang', e.target.value); }}
+            >
+              <option value="en">English</option>
+              <option value="kn">ಕನ್ನಡ</option>
+              <option value="hi">हिन्दी</option>
+            </select>
+          </div>
+          <button className="parent-logout-btn" onClick={onLogout}>
+            {s('logout')}
+          </button>
         </div>
       </header>
 

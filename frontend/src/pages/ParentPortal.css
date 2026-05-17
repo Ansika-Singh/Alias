@@ -179,6 +179,29 @@
 
 .icon-streak { color: #f97316; }
 .icon-points { color: #eab308; }
+
+/* Language selector */
+.parent-lang-select {
+  display: flex; align-items: center; gap: 0.4rem;
+  background: white; border: 1px solid rgba(0,0,0,0.1);
+  padding: 0.45rem 0.8rem; border-radius: 10px; font-size: 0.85rem;
+  color: var(--text-primary);
+}
+.parent-lang-select select {
+  background: transparent; border: none; outline: none;
+  font-family: inherit; font-size: 0.85rem; font-weight: 500;
+  color: var(--text-primary); cursor: pointer;
+}
+
+/* Logout button */
+.parent-logout-btn {
+  display: flex; align-items: center; gap: 0.4rem;
+  background: #fee2e2; border: 1px solid #fca5a5;
+  color: #dc2626; padding: 0.45rem 1rem; border-radius: 10px;
+  cursor: pointer; font-weight: 700; font-size: 0.85rem;
+  font-family: inherit; transition: all 0.2s; white-space: nowrap;
+}
+.parent-logout-btn:hover { background: #fecaca; border-color: #f87171; }
 .loading { display: flex; align-items: center; justify-content: center; height: 60vh; font-size: 1.1rem; color: var(--text-secondary); }
 
 @keyframes fadeIn {

@@ -16,20 +16,23 @@ import React, { useState, useEffect } from 'react';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(localStorage.getItem('isAuthenticated') === 'true');
+  const [userRole, setUserRole] = useState(localStorage.getItem('userRole') || 'teacher');
 
   const login = () => {
     localStorage.setItem('isAuthenticated', 'true');
     setIsAuthenticated(true);
+    setUserRole(localStorage.getItem('userRole') || 'teacher');
   };
 
   const logout = () => {
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('userRole');
     localStorage.removeItem('userName');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('accessToken');
     setIsAuthenticated(false);
+    setUserRole('teacher');
   };
-
-  const userRole = localStorage.getItem('userRole') || 'teacher';
 
   return (
     <Router>
@@ -49,37 +52,35 @@ function App() {
             />
             <Route 
               path="/students" 
-              element={isAuthenticated ? <Students /> : <Navigate to="/login" />} 
+              element={isAuthenticated && (userRole === 'teacher' || userRole === 'principal') ? <Students /> : <Navigate to={isAuthenticated ? "/" : "/login"} />} 
             />
             <Route 
               path="/timetable" 
-              element={isAuthenticated ? <Timetable /> : <Navigate to="/login" />} 
+              element={isAuthenticated && (userRole === 'teacher' || userRole === 'principal') ? <Timetable /> : <Navigate to={isAuthenticated ? "/" : "/login"} />} 
             />
             <Route 
               path="/photo-attendance" 
-              element={isAuthenticated ? <PhotoAttendance /> : <Navigate to="/login" />} 
+              element={isAuthenticated && (userRole === 'teacher' || userRole === 'principal') ? <PhotoAttendance /> : <Navigate to={isAuthenticated ? "/" : "/login"} />} 
             />
             <Route 
               path="/qr-attendance" 
-              element={isAuthenticated ? <QRAttendance /> : <Navigate to="/login" />} 
+              element={isAuthenticated && (userRole === 'teacher' || userRole === 'principal') ? <QRAttendance /> : <Navigate to={isAuthenticated ? "/" : "/login"} />} 
             />
             <Route 
               path="/audit-log" 
-              element={isAuthenticated && userRole === 'principal'
-                ? <AuditLog /> 
-                : <Navigate to={isAuthenticated ? "/" : "/login"} />} 
+              element={isAuthenticated && userRole === 'principal' ? <AuditLog /> : <Navigate to={isAuthenticated ? "/" : "/login"} />} 
             />
             <Route 
               path="/settings" 
-              element={isAuthenticated ? <Settings /> : <Navigate to="/login" />} 
+              element={isAuthenticated && (userRole === 'teacher' || userRole === 'principal') ? <Settings /> : <Navigate to={isAuthenticated ? "/" : "/login"} />} 
             />
             <Route 
               path="/portal" 
-              element={isAuthenticated ? <StudentPortal onLogout={logout} /> : <Navigate to="/login" />} 
+              element={isAuthenticated && userRole === 'student' ? <StudentPortal onLogout={logout} /> : <Navigate to={isAuthenticated ? "/" : "/login"} />} 
             />
             <Route 
               path="/parent-portal" 
-              element={isAuthenticated ? <ParentPortal onLogout={logout} /> : <Navigate to="/login" />} 
+              element={isAuthenticated && userRole === 'parent' ? <ParentPortal onLogout={logout} /> : <Navigate to={isAuthenticated ? "/" : "/login"} />} 
             />
             {/* Catch all and redirect to login or dashboard */}
             <Route path="*" element={<Navigate to={isAuthenticated ? "/" : "/login"} />} />

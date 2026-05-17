@@ -36,11 +36,14 @@ import {
   ExternalLink,
   ShieldCheck,
   Mail,
-  Phone
+  Phone,
+  QrCode
 } from 'lucide-react';
 import './StudentPortal.css';
+import './QRScanner.css';
 import HeatmapCalendar from '../components/HeatmapCalendar';
 import CampusCalendar from '../components/CampusCalendar';
+import QRScanner from './QRScanner';
 import { apiFetch, get, post } from '../utils/api';
 import { useTranslation } from 'react-i18next';
 
@@ -62,6 +65,7 @@ const StudentPortal = ({ onLogout }) => {
     campus:       { en: 'Campus',        hi: 'कैंपस',         kn: 'ಕ್ಯಾಂಪಸ್' },
     admin:        { en: 'Admin',         hi: 'प्रशासन',       kn: 'ಆಡಳಿತ' },
     profile:      { en: 'Profile',       hi: 'प्रोफ़ाइल',     kn: 'ಪ್ರೊಫೈಲ್' },
+    scanQR:       { en: 'Scan QR',       hi: 'QR स्कैन',      kn: 'QR ಸ್ಕ್ಯಾನ್' },
     attendance:   { en: 'Attendance',    hi: 'उपस्थिति',      kn: 'ಹಾಜರಾತಿ' },
     assignments:  { en: 'Assignments',   hi: 'असाइनमेंट',     kn: 'ಅಸೈನ್‌ಮೆಂಟ್' },
     labReports:   { en: 'Lab Reports & Submissions', hi: 'लैब रिपोर्ट और सबमिशन', kn: 'ಲ್ಯಾಬ್ ವರದಿ ಮತ್ತು ಸಲ್ಲಿಕೆ' },
@@ -358,6 +362,15 @@ const StudentPortal = ({ onLogout }) => {
         </button>
         <button className={activeTab === 'admin' ? 'active' : ''} onClick={() => setActiveTab('admin')}>
           <ShieldCheck size={18} /> {s('admin')}
+        </button>
+        <button className={activeTab === 'scanQR' ? 'active' : ''} onClick={() => setActiveTab('scanQR')} style={{ position: 'relative' }}>
+          <QrCode size={18} /> {s('scanQR')}
+          <span style={{
+            position: 'absolute', top: 4, right: 4,
+            width: 7, height: 7, borderRadius: '50%',
+            background: '#10b981',
+            boxShadow: '0 0 0 2px rgba(16,185,129,0.3)'
+          }} />
         </button>
         <button className={activeTab === 'profile' ? 'active' : ''} onClick={() => setActiveTab('profile')}>
           <User size={18} /> {s('profile')}
@@ -679,6 +692,14 @@ const StudentPortal = ({ onLogout }) => {
                     <div className="g-pill"><span>Resolved</span><strong>12</strong></div>
                  </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'scanQR' && (
+          <div className="portal-grid">
+            <div className="glass-card full-width" style={{ padding: '2rem' }}>
+              <QRScanner usn={usn} lang={lang} />
             </div>
           </div>
         )}
