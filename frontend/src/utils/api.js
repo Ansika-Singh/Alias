@@ -3,7 +3,7 @@
  * Uses relative /api paths so Vite proxy forwards to http://localhost:8000
  */
 
-const BASE_URL = '/api';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 /**
  * Enhanced fetch with automatic Auth header and error handling
