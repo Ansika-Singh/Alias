@@ -1,5 +1,6 @@
 import cv2
 try:
+    # pyrefly: ignore [missing-import]
     import face_recognition
     FACE_RECOGNITION_AVAILABLE = True
 except ImportError:
