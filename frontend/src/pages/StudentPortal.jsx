@@ -44,7 +44,7 @@ import './QRScanner.css';
 import HeatmapCalendar from '../components/HeatmapCalendar';
 import CampusCalendar from '../components/CampusCalendar';
 import QRScanner from './QRScanner';
-import { apiFetch, get, post } from '../utils/api';
+import { apiFetch, get, post, BASE_URL } from '../utils/api';
 import { useTranslation } from 'react-i18next';
 
 const StudentPortal = ({ onLogout }) => {
@@ -318,6 +318,24 @@ const StudentPortal = ({ onLogout }) => {
       alert(`${disputeForm.type === 'attendance' ? 'Dispute' : 'Complaint'} raised successfully! (demo)`);
       setShowDisputeModal(false);
     }
+  };
+
+  const handleDownloadNote = (courseId, noteTitle) => {
+    const token = localStorage.getItem('accessToken');
+    const url = `${BASE_URL}/academics/download-note?course_id=${courseId}&title=${encodeURIComponent(noteTitle)}${token ? `&token=${token}` : ''}`;
+    window.open(url, '_blank');
+  };
+
+  const handleDownloadReceipt = (txnId) => {
+    const token = localStorage.getItem('accessToken');
+    const url = `${BASE_URL}/portal/download-receipt/${txnId}?usn=${usn}${token ? `&token=${token}` : ''}`;
+    window.open(url, '_blank');
+  };
+
+  const handleDownloadDocument = (docName) => {
+    const token = localStorage.getItem('accessToken');
+    const url = `${BASE_URL}/portal/download-document?usn=${usn}&doc_name=${encodeURIComponent(docName)}${token ? `&token=${token}` : ''}`;
+    window.open(url, '_blank');
   };
 
   if (loading) return <div className="loading">Loading Portal...</div>;
@@ -632,7 +650,7 @@ const StudentPortal = ({ onLogout }) => {
                                 <FileText size={15} style={{ color: 'var(--accent-primary)' }} />
                                 {note.title}
                               </div>
-                              <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--accent-primary)' }}><Download size={16} /></button>
+                              <button onClick={() => handleDownloadNote(selectedCourse.id, note.title)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--accent-primary)' }}><Download size={16} /></button>
                             </div>
                           ))}
                         </div>
@@ -754,7 +772,7 @@ const StudentPortal = ({ onLogout }) => {
                           <strong>₹{txn.amount.toLocaleString()}</strong>
                           <span>{txn.date} • {txn.id}</span>
                        </div>
-                       <button className="btn-icon"><Download size={16} /></button>
+                       <button onClick={() => handleDownloadReceipt(txn.id)} className="btn-icon"><Download size={16} /></button>
                     </div>
                  ))}
               </div>
@@ -866,7 +884,7 @@ const StudentPortal = ({ onLogout }) => {
                             <strong>{doc.name}</strong>
                             <small>{doc.size} • {doc.type}</small>
                          </div>
-                         <button className="btn-icon"><Download size={18} /></button>
+                         <button onClick={() => handleDownloadDocument(doc.name)} className="btn-icon"><Download size={18} /></button>
                       </div>
                    ))}
                    <button className="doc-item-box upload-new">

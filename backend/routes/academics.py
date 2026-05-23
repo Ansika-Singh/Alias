@@ -1,8 +1,23 @@
-from fastapi import APIRouter, Body, Depends
+from fastapi import APIRouter, Body, Depends, Query, HTTPException, status, Request
+from fastapi.responses import StreamingResponse
 from database import assignment_collection, exam_collection
 from models import ResponseModel, ErrorResponseModel, AssignmentSchema, ExamSchema
-from auth import require_roles, Roles
+from auth import require_roles, Roles, decode_access_token
 from datetime import datetime
+from services.pdf_generator import generate_notes_pdf
+
+def check_download_auth(request: Request, token: str = Query(None)):
+    if not token:
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1]
+    if not token:
+        raise HTTPException(status_code=401, detail="Authentication token required")
+    try:
+        return decode_access_token(token)
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+
 
 router = APIRouter()
 
@@ -57,3 +72,22 @@ async def create_exam(exam: ExamSchema = Body(...), current_user: dict = Depends
         return ResponseModel(created, "Exam scheduled successfully.")
     except Exception as e:
         return ErrorResponseModel(str(e), 500, "Error scheduling exam.")
+
+@router.get("/download-note", response_description="Download course note PDF")
+async def download_note(
+    course_id: str = Query(...), 
+    title: str = Query(...), 
+    current_user: dict = Depends(check_download_auth)
+):
+    try:
+        pdf_buffer = generate_notes_pdf(course_id, title)
+        # Format filename cleanly (lowercase, no spaces)
+        safe_filename = f"{course_id.lower()}_{title.lower().replace(' ', '_').replace(':', '')}.pdf"
+        return StreamingResponse(
+            pdf_buffer,
+            media_type="application/pdf",
+            headers={"Content-Disposition": f"attachment; filename={safe_filename}"}
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate study notes PDF: {str(e)}")
+
