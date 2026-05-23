@@ -216,6 +216,7 @@ const ParentPortal = ({ onLogout }) => {
       setLeaveHistory(prev => [newLeave, ...prev]);
       setShowLeaveModal(false);
       setLeaveForm({ startDate: '', endDate: '', reason: '', type: 'Sick Leave' });
+    }
   };
 
   const handleDownloadNote = (courseId, noteTitle) => {
