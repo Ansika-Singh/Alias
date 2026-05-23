@@ -537,7 +537,7 @@ const StudentPortal = ({ onLogout }) => {
             </div>
 
             {/* Labs & Exams side by side */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', gridColumn: '1 / -1' }}>
+            <div className="labs-exams-grid">
               <div className="glass-card labs-card">
                 <div className="card-header">
                   <h3>{s('labReports')}</h3>
@@ -614,8 +614,8 @@ const StudentPortal = ({ onLogout }) => {
                 <h3>Course Materials & Syllabus</h3>
                 <BookOpen size={20} />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '1.5rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <div className="courses-grid-layout">
+                <div className="courses-sidebar">
                   {portalData.courses.map(course => (
                     <button key={course.id}
                       onClick={() => setSelectedCourse(course)}
@@ -633,7 +633,7 @@ const StudentPortal = ({ onLogout }) => {
                     </button>
                   ))}
                 </div>
-                <div style={{ background: 'white', borderRadius: '12px', padding: '1.5rem' }}>
+                <div className="course-details-panel">
                   {selectedCourse ? (
                     <div>
                       <h4 style={{ fontSize: '1.1rem', marginBottom: '0.25rem' }}>{selectedCourse.name}</h4>

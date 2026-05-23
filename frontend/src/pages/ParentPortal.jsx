@@ -366,8 +366,8 @@ const ParentPortal = ({ onLogout }) => {
                 <h3>Course Materials & Syllabus</h3>
                 <BookOpen size={20} />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '1.5rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <div className="courses-grid-layout">
+                <div className="courses-sidebar">
                   {childExtras.courses.map(course => (
                     <button key={course.id}
                       onClick={() => setSelectedCourse(course)}
@@ -385,7 +385,7 @@ const ParentPortal = ({ onLogout }) => {
                     </button>
                   ))}
                 </div>
-                <div style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', border: '1px solid rgba(0,0,0,0.05)' }}>
+                <div className="course-details-panel parent">
                   {selectedCourse ? (
                     <div>
                       <h4 style={{ fontSize: '1.1rem', marginBottom: '0.25rem', color: 'var(--text-primary)' }}>{selectedCourse.name}</h4>
@@ -462,12 +462,12 @@ const ParentPortal = ({ onLogout }) => {
               <div className="fee-history" style={{marginTop:'1.5rem'}}>
                  <h5 style={{color:'var(--text-primary)',fontWeight:700,fontSize:'0.9rem',marginBottom:'0.75rem'}}>Payment History</h5>
                  {childExtras.fees.history.map((txn, i) => (
-                    <div key={i} className="txn-item" style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'0.6rem 0.75rem',background:'#f8fafc',borderRadius:'8px',marginBottom:'0.5rem',border:'1px solid rgba(0,0,0,0.02)'}}>
+                    <div key={i} className="portal-list-item-card">
                        <div className="txn-info" style={{display:'flex',flexDirection:'column'}}>
                           <strong style={{color:'var(--text-primary)',fontSize:'0.88rem'}}>₹{txn.amount.toLocaleString()}</strong>
                           <span style={{fontSize:'0.75rem',color:'var(--text-secondary)'}}>{txn.date} • {txn.id}</span>
                        </div>
-                       <button onClick={() => handleDownloadReceipt(txn.id)} className="btn-icon" style={{background:'none',border:'none',cursor:'pointer',color:'var(--accent-primary)'}}><Download size={16} /></button>
+                       <button onClick={() => handleDownloadReceipt(txn.id)} className="btn-icon"><Download size={16} /></button>
                     </div>
                  ))}
               </div>
@@ -485,7 +485,7 @@ const ParentPortal = ({ onLogout }) => {
               <div className="fee-history">
                  <h5 style={{color:'var(--text-primary)',fontWeight:700,fontSize:'0.9rem',marginBottom:'0.75rem'}}>Academic Documents</h5>
                  {childExtras.documents.map((doc, i) => (
-                    <div key={i} className="txn-item" style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'0.6rem 0.75rem',background:'#f8fafc',borderRadius:'8px',marginBottom:'0.5rem',border:'1px solid rgba(0,0,0,0.02)'}}>
+                    <div key={i} className="portal-list-item-card">
                        <div className="txn-info" style={{display:'flex',alignItems:'center',gap:'0.5rem'}}>
                           <Paperclip size={16} style={{color:'var(--accent-primary)'}} />
                           <div style={{display:'flex',flexDirection:'column'}}>
@@ -493,7 +493,7 @@ const ParentPortal = ({ onLogout }) => {
                             <span style={{fontSize:'0.75rem',color:'var(--text-secondary)'}}>{doc.size} • {doc.type}</span>
                           </div>
                        </div>
-                       <button onClick={() => handleDownloadDocument(doc.name)} className="btn-icon" style={{background:'none',border:'none',cursor:'pointer',color:'var(--accent-primary)'}}><Download size={16} /></button>
+                       <button onClick={() => handleDownloadDocument(doc.name)} className="btn-icon"><Download size={16} /></button>
                     </div>
                  ))}
               </div>

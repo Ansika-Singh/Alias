@@ -75,6 +75,12 @@
   border: 1px solid rgba(255, 255, 255, 0.3);
   overflow-x: auto;
   max-width: 100%;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.portal-tabs.scrollable-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .portal-tabs button {
@@ -230,10 +236,63 @@
 .btn-icon { background: #f1f5f9; border: none; padding: 0.5rem; border-radius: 8px; cursor: pointer; color: var(--text-secondary); transition: all 0.2s; }
 .btn-icon:hover { background: var(--accent-primary); color: white; }
 
+.courses-grid-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 1.5rem;
+}
+
+.courses-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.course-details-panel {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.labs-exams-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  grid-column: 1 / -1;
+}
+
 @media (max-width: 768px) {
   .academics-sub-grid, .profile-sections, .id-fields { grid-template-columns: 1fr; }
   .courses-layout { grid-template-columns: 1fr; }
   .grievance-flex { flex-direction: column; align-items: flex-start; }
+  
+  .portal-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .stats-quickview {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+  
+  .courses-grid-layout {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .courses-sidebar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 0.5rem;
+  }
+  
+  .labs-exams-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
 }
 
 /* ===================== CAMPUS CALENDAR ===================== */
@@ -474,3 +533,48 @@
 .doc-item-box .btn-icon:hover { color: var(--accent-primary); background: #fce7f3; }
 .upload-new { background: #fafaf9; border: 2px dashed #cbd5e1; cursor: pointer; justify-content: center; padding: 2rem 1rem; }
 .upload-new:hover { border-color: var(--accent-primary); background: #fdf2f8; }
+
+@media (max-width: 600px) {
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .doc-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .portal-container {
+    padding: 0.75rem;
+    padding-bottom: 3rem;
+  }
+  
+  .glass-card {
+    padding: 1rem;
+  }
+  
+  .course-details-panel {
+    padding: 1rem;
+  }
+  
+  .circular-mini {
+    width: 64px;
+    height: 64px;
+  }
+  
+  .summary-flex {
+    gap: 1rem;
+  }
+  
+  .user-info h1 {
+    font-size: 1.25rem;
+  }
+  
+  .portal-tabs button {
+    padding: 0.5rem 0.9rem;
+    font-size: 0.82rem;
+  }
+}
