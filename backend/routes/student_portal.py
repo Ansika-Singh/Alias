@@ -155,7 +155,8 @@ async def download_document(
             student = {"name": "Ansika Singh", "usn": usn, "branch": "CSE", "semester": "6"}
             
         pdf_buffer = generate_document_vault_pdf(doc_name, student)
-        safe_filename = f"{doc_name.lower().replace(' ', '_').replace('\'', '')}.pdf"
+        doc_clean = doc_name.lower().replace(' ', '_').replace('\'', '')
+        safe_filename = f"{doc_clean}.pdf"
         return StreamingResponse(
             pdf_buffer,
             media_type="application/pdf",
