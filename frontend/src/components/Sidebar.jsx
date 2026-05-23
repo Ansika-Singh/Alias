@@ -86,7 +86,7 @@ const Sidebar = ({ onLogout }) => {
         )}
       </nav>
 
-      <div style={{ padding: '0 1rem', marginBottom: '1rem' }}>
+      <div className="sidebar-lang-select">
         <div style={{ 
           display: 'flex', 
           alignItems: 'center', 
@@ -119,7 +119,7 @@ const Sidebar = ({ onLogout }) => {
       </div>
 
       
-      <div className="bottom-nav" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+      <div className="bottom-nav">
         <NavLink to="/settings" className={linkClass}>
           <Settings size={20} />
           <span>{t('settings')}</span>

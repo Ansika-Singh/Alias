@@ -249,6 +249,15 @@ h1, h2, h3 {
   border-color: var(--accent-primary) !important;
 }
 
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column-reverse !important;
+  }
+  .main-content {
+    padding: 1rem 1rem 5.5rem 1rem !important;
+  }
+}
+
 
 
 
