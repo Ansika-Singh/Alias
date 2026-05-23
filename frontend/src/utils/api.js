@@ -5,7 +5,7 @@
 export const BASE_URL = import.meta.env.VITE_API_URL || 
   (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
     ? 'http://localhost:8000/api'
-    : 'https://Ansika26-Alias-backend.hf.space/api');
+    : 'https://alias-ei9p.onrender.com/api');
 
 /**
  * Enhanced fetch with automatic Auth header and error handling
