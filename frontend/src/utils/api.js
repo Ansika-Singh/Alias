@@ -2,7 +2,10 @@
  * API Utility for ALIAS
  * Uses relative /api paths so Vite proxy forwards to http://localhost:8000
  */
-export const BASE_URL = import.meta.env.VITE_API_URL || 'https://Ansika26-Alias-backend.hf.space/api';
+export const BASE_URL = import.meta.env.VITE_API_URL || 
+  (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:8000/api'
+    : 'https://Ansika26-Alias-backend.hf.space/api');
 
 /**
  * Enhanced fetch with automatic Auth header and error handling
