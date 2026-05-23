@@ -242,6 +242,7 @@ const StudentPortal = ({ onLogout }) => {
   const [examsList, setExamsList] = useState(portalData.exams);
 
   useEffect(() => {
+    setSelectedCourse(portalData.courses[0]);
     fetchStudentData();
   }, []);
 
